@@ -1,0 +1,30 @@
+{
+    "name": "netgen/layouts-relation-list-query",
+    "description": "Netgen Layouts RelationList query",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Netgen",
+            "homepage": "http://www.netgenlabs.com"
+        }
+    ],
+    "require": {
+        "netgen/block-manager-ezpublish": ">=0.7,<1.0"
+    },
+    "repositories": [
+        { "type": "composer", "url": "https://packagist.netgen.biz" }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Netgen\\Layouts\\RelationListQuery\\": "lib/",
+            "Netgen\\Bundle\\LayoutsRelationListQueryBundle\\": "bundle/"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.x-dev"
+        }
+    }
+}
