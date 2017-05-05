@@ -1,0 +1,15 @@
+services:
+    netgen_block_manager.collection.query_type.handler.ezcontent_relation_lists:
+        class: Netgen\Layouts\RelationListQuery\Handler\RelationListQueryHandler
+        # Needs to be lazy since we're injecting "languages" dynamic param
+        lazy: true
+        arguments:
+            - "@ezpublish.api.service.location"
+            - "@ezpublish.api.service.content"
+            - "@ezpublish.api.service.search"
+            - "@ezpublish.translation_helper"
+            - "@netgen_block_manager.ezpublish.content_provider"
+        calls:
+            - [setLanguages, ["$languages$"]]
+        tags:
+            - { name: netgen_block_manager.collection.query_type_handler, type: ezcontent_relation_list }
