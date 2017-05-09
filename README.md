@@ -12,7 +12,7 @@ Run the following from your installation root to install the package:
 $ composer require netgen/layouts-relation-list-query:^1.0
 ```
 
-### Activate the bundle in your app kernel:
+### Activate the bundle in your app kernel
 
 Add the following to the list of activated bundles:
 
