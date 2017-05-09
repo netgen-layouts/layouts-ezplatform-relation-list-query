@@ -2,6 +2,7 @@
 
 namespace Netgen\Bundle\LayoutsRelationListQueryBundle\DependencyInjection;
 
+use Netgen\BlockManager\Version;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -40,6 +41,10 @@ class NetgenLayoutsRelationListQueryExtension extends Extension implements Prepe
         $prependConfigs = array(
             'query_types.yml' => 'netgen_block_manager',
         );
+
+        if (Version::VERSION_ID < 800) {
+            $prependConfigs['form_view.yml'] = 'netgen_block_manager';
+        }
 
         foreach ($prependConfigs as $configFile => $prependConfig) {
             $configFile = __DIR__ . '/../Resources/config/' . $configFile;

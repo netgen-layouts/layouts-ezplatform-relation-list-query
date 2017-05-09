@@ -19,12 +19,15 @@ use Netgen\BlockManager\Ez\ContentProvider\ContentProviderInterface;
 use Netgen\BlockManager\Ez\Parameters\ParameterType as EzParameterType;
 use Netgen\BlockManager\Parameters\ParameterBuilderInterface;
 use Netgen\BlockManager\Parameters\ParameterType;
+use Netgen\BlockManager\Version;
 
 /**
  * Query handler implementation providing values through eZ Platform field relation.
  */
 class RelationListQueryHandler implements QueryTypeHandlerInterface
 {
+    const GROUP_ADVANCED = 'advanced';
+
     /**
      * @var int
      */
@@ -96,6 +99,11 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
     );
 
     /**
+     * @var array
+     */
+    protected $advancedGroups = array();
+
+    /**
      * @param \eZ\Publish\API\Repository\LocationService $locationService
      * @param \eZ\Publish\API\Repository\ContentService $contentService
      * @param \eZ\Publish\API\Repository\SearchService $searchService
@@ -114,6 +122,10 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
         $this->searchService = $searchService;
         $this->translationHelper = $translationHelper;
         $this->contentProvider = $contentProvider;
+
+        if (Version::VERSION_ID >= 800) {
+            $this->advancedGroups = array(self::GROUP_ADVANCED);
+        }
     }
 
     /**
@@ -189,7 +201,7 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
             ParameterType\IntegerType::class,
             array(
                 'min' => 0,
-                'groups' => array(self::GROUP_ADVANCED),
+                'groups' => $this->advancedGroups,
             )
         );
 
@@ -198,7 +210,7 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
             ParameterType\BooleanType::class,
             array(
                 'default_value' => true,
-                'groups' => array(self::GROUP_ADVANCED),
+                'groups' => $this->advancedGroups,
             )
         );
 
@@ -206,7 +218,7 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
             'filter_by_content_type',
             ParameterType\Compound\BooleanType::class,
             array(
-                'groups' => array(self::GROUP_ADVANCED),
+                'groups' => $this->advancedGroups,
             )
         );
 
@@ -215,7 +227,7 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
             EzParameterType\ContentTypeType::class,
             array(
                 'multiple' => true,
-                'groups' => array(self::GROUP_ADVANCED),
+                'groups' => $this->advancedGroups,
             )
         );
 
@@ -228,7 +240,7 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
                     'Include content types' => 'include',
                     'Exclude content types' => 'exclude',
                 ),
-                'groups' => array(self::GROUP_ADVANCED),
+                'groups' => $this->advancedGroups,
             )
         );
     }
