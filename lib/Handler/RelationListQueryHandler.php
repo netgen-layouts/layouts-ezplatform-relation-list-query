@@ -22,12 +22,10 @@ use Netgen\BlockManager\Parameters\ParameterType;
 use Netgen\BlockManager\Version;
 
 /**
- * Query handler implementation providing values through eZ Platform field relation.
+ * Query handler implementation providing values through eZ Platform relation list field.
  */
 class RelationListQueryHandler implements QueryTypeHandlerInterface
 {
-    const GROUP_ADVANCED = 'advanced';
-
     /**
      * @var int
      */
@@ -124,7 +122,7 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
         $this->contentProvider = $contentProvider;
 
         if (Version::VERSION_ID >= 800) {
-            $this->advancedGroups = array(self::GROUP_ADVANCED);
+            $this->advancedGroups = array('advanced');
         }
     }
 
