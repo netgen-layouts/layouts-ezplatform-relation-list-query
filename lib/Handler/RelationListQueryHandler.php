@@ -302,6 +302,18 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
     }
 
     /**
+     * Returns if the provided query is dependent on a context, i.e. current request.
+     *
+     * @param \Netgen\BlockManager\API\Values\Collection\Query $query
+     *
+     * @return bool
+     */
+    public function isContextual(Query $query)
+    {
+        return $query->getParameter('use_current_location')->getValue();
+    }
+
+    /**
      * Sort given $locations as defined by the given $relatedContentIds.
      *
      * @param int[]|string[] $relatedContentIds
