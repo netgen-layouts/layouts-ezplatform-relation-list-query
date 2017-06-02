@@ -4,6 +4,7 @@ namespace Netgen\Layouts\RelationListQuery\Handler;
 
 use Exception;
 use eZ\Publish\API\Repository\ContentService;
+use eZ\Publish\API\Repository\Exceptions\NotFoundException;
 use eZ\Publish\API\Repository\LocationService;
 use eZ\Publish\API\Repository\SearchService;
 use eZ\Publish\API\Repository\Values\Content\Location;
@@ -13,6 +14,7 @@ use eZ\Publish\API\Repository\Values\Content\Query\SortClause;
 use eZ\Publish\API\Repository\Values\Content\Search\SearchHit;
 use eZ\Publish\Core\FieldType\RelationList\Value as RelationListValue;
 use eZ\Publish\Core\Helper\TranslationHelper;
+use eZ\Publish\SPI\Persistence\Content\Type\Handler;
 use Netgen\BlockManager\API\Values\Collection\Query;
 use Netgen\BlockManager\Collection\QueryType\QueryTypeHandlerInterface;
 use Netgen\BlockManager\Ez\ContentProvider\ContentProviderInterface;
@@ -32,11 +34,6 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
     const DEFAULT_LIMIT = 25;
 
     /**
-     * @var array
-     */
-    protected $contentTypes;
-
-    /**
      * @var \eZ\Publish\API\Repository\LocationService
      */
     protected $locationService;
@@ -50,6 +47,11 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
      * @var \eZ\Publish\API\Repository\SearchService
      */
     protected $searchService;
+
+    /**
+     * @var \eZ\Publish\SPI\Persistence\Content\Type\Handler
+     */
+    protected $contentTypeHandler;
 
     /**
      * @var \eZ\Publish\Core\Helper\TranslationHelper
@@ -105,6 +107,7 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
      * @param \eZ\Publish\API\Repository\LocationService $locationService
      * @param \eZ\Publish\API\Repository\ContentService $contentService
      * @param \eZ\Publish\API\Repository\SearchService $searchService
+     * @param \eZ\Publish\SPI\Persistence\Content\Type\Handler $contentTypeHandler
      * @param \eZ\Publish\Core\Helper\TranslationHelper $translationHelper
      * @param \Netgen\BlockManager\Ez\ContentProvider\ContentProviderInterface $contentProvider
      */
@@ -112,12 +115,14 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
         LocationService $locationService,
         ContentService $contentService,
         SearchService $searchService,
+        Handler $contentTypeHandler,
         TranslationHelper $translationHelper,
         ContentProviderInterface $contentProvider
     ) {
         $this->locationService = $locationService;
         $this->contentService = $contentService;
         $this->searchService = $searchService;
+        $this->contentTypeHandler = $contentTypeHandler;
         $this->translationHelper = $translationHelper;
         $this->contentProvider = $contentProvider;
 
@@ -312,6 +317,29 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
     }
 
     /**
+     * Returns content type IDs for all existing content types.
+     *
+     * @param array $contentTypeIdentifiers
+     *
+     * @return array
+     */
+    protected function getContentTypeIds(array $contentTypeIdentifiers)
+    {
+        $idList = array();
+
+        foreach ($contentTypeIdentifiers as $identifier) {
+            try {
+                $contentType = $this->contentTypeHandler->loadByIdentifier($identifier);
+                $idList[] = $contentType->id;
+            } catch (NotFoundException $e) {
+                continue;
+            }
+        }
+
+        return $idList;
+    }
+
+    /**
      * Sort given $locations as defined by the given $relatedContentIds.
      *
      * @param int[]|string[] $relatedContentIds
@@ -450,7 +478,9 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
         if ($query->getParameter('filter_by_content_type')->getValue()) {
             $contentTypes = $query->getParameter('content_types')->getValue();
             if (!empty($contentTypes)) {
-                $contentTypeFilter = new Criterion\ContentTypeIdentifier($contentTypes);
+                $contentTypeFilter = new Criterion\ContentTypeId(
+                    $this->getContentTypeIds($contentTypes)
+                );
 
                 if ($query->getParameter('content_types_filter')->getValue() === 'exclude') {
                     $contentTypeFilter = new Criterion\LogicalNot($contentTypeFilter);
