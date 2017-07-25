@@ -313,7 +313,7 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
      */
     public function isContextual(Query $query)
     {
-        return $query->getParameter('use_current_location')->getValue();
+        return $query->getParameter('use_current_location')->getValue() === true;
     }
 
     /**
