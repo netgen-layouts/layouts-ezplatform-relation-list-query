@@ -103,14 +103,6 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
      */
     protected $advancedGroups = array();
 
-    /**
-     * @param \eZ\Publish\API\Repository\LocationService $locationService
-     * @param \eZ\Publish\API\Repository\ContentService $contentService
-     * @param \eZ\Publish\API\Repository\SearchService $searchService
-     * @param \eZ\Publish\SPI\Persistence\Content\Type\Handler $contentTypeHandler
-     * @param \eZ\Publish\Core\Helper\TranslationHelper $translationHelper
-     * @param \Netgen\BlockManager\Ez\ContentProvider\ContentProviderInterface $contentProvider
-     */
     public function __construct(
         LocationService $locationService,
         ContentService $contentService,
@@ -304,13 +296,6 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
         return $limit >= 0 ? $limit : self::DEFAULT_LIMIT;
     }
 
-    /**
-     * Returns if the provided query is dependent on a context, i.e. current request.
-     *
-     * @param \Netgen\BlockManager\API\Values\Collection\Query $query
-     *
-     * @return bool
-     */
     public function isContextual(Query $query)
     {
         return $query->getParameter('use_current_location')->getValue() === true;
