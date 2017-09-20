@@ -93,14 +93,6 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
     /**
      * @var array
      */
-    protected $sortDirections = array(
-        Location::SORT_ORDER_ASC => LocationQuery::SORT_ASC,
-        Location::SORT_ORDER_DESC => LocationQuery::SORT_DESC,
-    );
-
-    /**
-     * @var array
-     */
     protected $advancedGroups = array();
 
     public function __construct(
