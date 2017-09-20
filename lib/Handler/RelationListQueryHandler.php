@@ -36,44 +36,44 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
     /**
      * @var \eZ\Publish\API\Repository\LocationService
      */
-    protected $locationService;
+    private $locationService;
 
     /**
      * @var \eZ\Publish\API\Repository\ContentService
      */
-    protected $contentService;
+    private $contentService;
 
     /**
      * @var \eZ\Publish\API\Repository\SearchService
      */
-    protected $searchService;
+    private $searchService;
 
     /**
      * @var \eZ\Publish\SPI\Persistence\Content\Type\Handler
      */
-    protected $contentTypeHandler;
+    private $contentTypeHandler;
 
     /**
      * @var \eZ\Publish\Core\Helper\TranslationHelper
      */
-    protected $translationHelper;
+    private $translationHelper;
 
     /**
      * @var \Netgen\BlockManager\Ez\ContentProvider\ContentProviderInterface
      */
-    protected $contentProvider;
+    private $contentProvider;
 
     /**
      * Injected list of prioritized languages.
      *
      * @var array
      */
-    protected $languages = array();
+    private $languages = array();
 
     /**
      * @var array
      */
-    protected $sortClauses = array(
+    private $sortClauses = array(
         'default' => SortClause\DatePublished::class,
         'date_published' => SortClause\DatePublished::class,
         'date_modified' => SortClause\DateModified::class,
@@ -93,7 +93,7 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
     /**
      * @var array
      */
-    protected $advancedGroups = array();
+    private $advancedGroups = array();
 
     public function __construct(
         LocationService $locationService,
@@ -300,7 +300,7 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
      *
      * @return array
      */
-    protected function getContentTypeIds(array $contentTypeIdentifiers)
+    private function getContentTypeIds(array $contentTypeIdentifiers)
     {
         $idList = array();
 
