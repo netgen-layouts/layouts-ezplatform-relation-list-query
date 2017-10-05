@@ -1,11 +1,10 @@
 {
     "name": "netgen/layouts-relation-list-query",
     "description": "Netgen Layouts RelationList query",
-    "license": "proprietary",
     "authors": [
         {
             "name": "Netgen",
-            "homepage": "http://www.netgenlabs.com"
+            "homepage": "https://www.netgenlabs.com"
         }
     ],
     "require": {
