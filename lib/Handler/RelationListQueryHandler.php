@@ -29,11 +29,6 @@ use Netgen\BlockManager\Version;
 class RelationListQueryHandler implements QueryTypeHandlerInterface
 {
     /**
-     * @var int
-     */
-    const DEFAULT_LIMIT = 25;
-
-    /**
      * @var \eZ\Publish\API\Repository\LocationService
      */
     private $locationService;
@@ -176,23 +171,6 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
         );
 
         $builder->add(
-            'limit',
-            ParameterType\IntegerType::class,
-            array(
-                'min' => 0,
-            )
-        );
-
-        $builder->add(
-            'offset',
-            ParameterType\IntegerType::class,
-            array(
-                'min' => 0,
-                'groups' => $this->advancedGroups,
-            )
-        );
-
-        $builder->add(
             'only_main_locations',
             ParameterType\BooleanType::class,
             array(
@@ -243,7 +221,7 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
         }
 
         $searchResult = $this->searchService->findLocations(
-            $this->buildQuery($relatedContentIds, $query),
+            $this->buildQuery($relatedContentIds, $query, false, $offset, $limit),
             array('languages' => $this->languages)
         );
 
@@ -275,17 +253,6 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
         );
 
         return $searchResult->totalCount;
-    }
-
-    public function getInternalLimit(Query $query)
-    {
-        $limit = $query->getParameter('limit')->getValue();
-
-        if (!is_int($limit)) {
-            return self::DEFAULT_LIMIT;
-        }
-
-        return $limit >= 0 ? $limit : self::DEFAULT_LIMIT;
     }
 
     public function isContextual(Query $query)
@@ -347,21 +314,35 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
     }
 
     /**
-     * Return offset value to use from the given collection $query.
+     * Return filtered offset value to use.
      *
-     * @param \Netgen\BlockManager\API\Values\Collection\Query $query
+     * @param int $offset
      *
      * @return int
      */
-    private function getOffset(Query $query)
+    private function getOffset($offset)
     {
-        $offset = $query->getParameter('offset')->getValue();
-
         if (is_int($offset) && $offset >= 0) {
             return $offset;
         }
 
         return 0;
+    }
+
+    /**
+     * Return filtered limit value to use.
+     *
+     * @param int $limit
+     *
+     * @return int
+     */
+    public function getLimit($limit)
+    {
+        if (is_int($limit) && $limit >= 0) {
+            return $limit;
+        }
+
+        return null;
     }
 
     /**
@@ -426,19 +407,21 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
      * @param array $relatedContentIds
      * @param \Netgen\BlockManager\API\Values\Collection\Query $query
      * @param bool $buildCountQuery
+     * @param int $offset
+     * @param int $limit
      *
      * @return \eZ\Publish\API\Repository\Values\Content\LocationQuery
      */
-    private function buildQuery(array $relatedContentIds, Query $query, $buildCountQuery = false)
+    private function buildQuery(array $relatedContentIds, Query $query, $buildCountQuery = false, $offset = 0, $limit = null)
     {
         $locationQuery = new LocationQuery();
-        $internalLimit = $this->getInternalLimit($query);
-        $offset = $this->getOffset($query);
+        $offset = $this->getOffset($offset);
+        $limit = $this->getLimit($limit);
         $sortType = $query->getParameter('sort_type')->getValue() ?: 'default';
         $sortDirection = $query->getParameter('sort_direction')->getValue() ?: LocationQuery::SORT_DESC;
 
         if ($sortType === 'defined_by_field') {
-            $relatedContentIds = array_slice($relatedContentIds, $offset, $internalLimit);
+            $relatedContentIds = array_slice($relatedContentIds, $offset, $limit);
         }
 
         $criteria = array(
@@ -472,7 +455,7 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
         $locationQuery->limit = 0;
         if (!$buildCountQuery) {
             $locationQuery->offset = $offset;
-            $locationQuery->limit = $internalLimit;
+            $locationQuery->limit = $limit;
         }
 
         if ($sortType !== 'defined_by_field') {
