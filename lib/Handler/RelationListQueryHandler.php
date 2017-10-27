@@ -326,7 +326,7 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
      *
      * @return int
      */
-    public function getLimit($limit)
+    private function getLimit($limit)
     {
         if (is_int($limit) && $limit >= 0) {
             return $limit;
