@@ -8,7 +8,7 @@
         }
     ],
     "require": {
-        "netgen/block-manager-ezpublish": ">=0.7,<=0.9"
+        "netgen/block-manager-ezpublish": ">=0.10,<1.0"
     },
     "repositories": [
         { "type": "composer", "url": "https://packagist.netgen.biz" }
