@@ -29,10 +29,6 @@ final class NetgenLayoutsRelationListQueryExtension extends Extension implements
             'query_types.yml' => 'netgen_block_manager',
         );
 
-        if (Version::VERSION_ID < 800) {
-            $prependConfigs['form_view.yml'] = 'netgen_block_manager';
-        }
-
         foreach ($prependConfigs as $configFile => $prependConfig) {
             $configFile = __DIR__ . '/../Resources/config/' . $configFile;
             $config = Yaml::parse(file_get_contents($configFile));

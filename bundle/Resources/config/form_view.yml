@@ -1,8 +1,0 @@
-view:
-    form_view:
-        api:
-            query\full_edit\ezcontent_relation_list:
-                template: "@NetgenLayoutsRelationListQuery/app/form/query/edit/full/ezcontent_relation_list.html.twig"
-                match:
-                    form\type: Netgen\BlockManager\Collection\Query\Form\FullEditType
-                    form\query\type: ezcontent_relation_list
