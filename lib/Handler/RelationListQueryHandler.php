@@ -24,6 +24,8 @@ use Netgen\BlockManager\Parameters\ParameterType;
 
 /**
  * Query handler implementation providing values through eZ Platform relation list field.
+ *
+ * @final
  */
 class RelationListQueryHandler implements QueryTypeHandlerInterface
 {
