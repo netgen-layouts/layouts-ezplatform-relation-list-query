@@ -124,7 +124,10 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
 
         $builder->get('use_current_location')->add(
             'location_id',
-            EzParameterType\LocationType::class
+            EzParameterType\LocationType::class,
+            array(
+                'allow_invalid' => true,
+            )
         );
 
         $builder->add(
