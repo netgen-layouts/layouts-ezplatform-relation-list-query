@@ -135,7 +135,6 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
             ParameterType\TextLineType::class,
             array(
                 'required' => true,
-                'default_value' => 'Text',
             )
         );
 
