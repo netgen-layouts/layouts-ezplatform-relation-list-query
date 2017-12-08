@@ -215,7 +215,7 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
         }
 
         $searchResult = $this->searchService->findLocations(
-            $this->buildQuery($relatedContentIds, $query, false, $offset, $limit),
+            $this->buildLocationQuery($relatedContentIds, $query, false, $offset, $limit),
             array('languages' => $this->languages)
         );
 
@@ -242,7 +242,7 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
         }
 
         $searchResult = $this->searchService->findLocations(
-            $this->buildQuery($relatedContentIds, $query, true),
+            $this->buildLocationQuery($relatedContentIds, $query, true),
             array('languages' => $this->languages)
         );
 
@@ -406,7 +406,7 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
      *
      * @return \eZ\Publish\API\Repository\Values\Content\LocationQuery
      */
-    private function buildQuery(array $relatedContentIds, Query $query, $buildCountQuery = false, $offset = 0, $limit = null)
+    private function buildLocationQuery(array $relatedContentIds, Query $query, $buildCountQuery = false, $offset = 0, $limit = null)
     {
         $locationQuery = new LocationQuery();
         $offset = $this->getOffset($offset);
