@@ -214,8 +214,11 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
             return array();
         }
 
+        $locationQuery = $this->buildLocationQuery($relatedContentIds, $query, false, $offset, $limit);
+        $locationQuery->performCount = false;
+
         $searchResult = $this->searchService->findLocations(
-            $this->buildLocationQuery($relatedContentIds, $query, false, $offset, $limit),
+            $locationQuery,
             array('languages' => $this->languages)
         );
 
