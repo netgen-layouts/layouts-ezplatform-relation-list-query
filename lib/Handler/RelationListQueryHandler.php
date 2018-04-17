@@ -64,12 +64,12 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
      *
      * @var array
      */
-    private $languages = array();
+    private $languages = [];
 
     /**
      * @var array
      */
-    private $sortClauses = array(
+    private $sortClauses = [
         'default' => SortClause\DatePublished::class,
         'date_published' => SortClause\DatePublished::class,
         'date_modified' => SortClause\DateModified::class,
@@ -84,7 +84,7 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
         Location::SORT_FIELD_NAME => SortClause\ContentName::class,
         Location::SORT_FIELD_NODE_ID => SortClause\Location\Id::class,
         Location::SORT_FIELD_CONTENTOBJECT_ID => SortClause\ContentId::class,
-    );
+    ];
 
     public function __construct(
         LocationService $locationService,
@@ -109,7 +109,7 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
      */
     public function setLanguages(array $languages = null)
     {
-        $this->languages = is_array($languages) ? $languages : array();
+        $this->languages = is_array($languages) ? $languages : [];
     }
 
     public function buildParameters(ParameterBuilderInterface $builder)
@@ -117,90 +117,90 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
         $builder->add(
             'use_current_location',
             ParameterType\Compound\BooleanType::class,
-            array(
+            [
                 'reverse' => true,
-            )
+            ]
         );
 
         $builder->get('use_current_location')->add(
             'location_id',
             EzParameterType\LocationType::class,
-            array(
+            [
                 'allow_invalid' => true,
-            )
+            ]
         );
 
         $builder->add(
             'field_definition_identifier',
             ParameterType\TextLineType::class,
-            array(
+            [
                 'required' => true,
-            )
+            ]
         );
 
         $builder->add(
             'sort_type',
             ParameterType\ChoiceType::class,
-            array(
+            [
                 'required' => true,
-                'options' => array(
+                'options' => [
                     'Defined by field' => 'defined_by_field',
                     'Published' => 'date_published',
                     'Modified' => 'date_modified',
                     'Alphabetical' => 'content_name',
-                ),
-            )
+                ],
+            ]
         );
 
         $builder->add(
             'sort_direction',
             ParameterType\ChoiceType::class,
-            array(
+            [
                 'required' => true,
-                'options' => array(
+                'options' => [
                     'Descending' => LocationQuery::SORT_DESC,
                     'Ascending' => LocationQuery::SORT_ASC,
-                ),
-            )
+                ],
+            ]
         );
 
         $builder->add(
             'only_main_locations',
             ParameterType\BooleanType::class,
-            array(
+            [
                 'default_value' => true,
-                'groups' => array(self::GROUP_ADVANCED),
-            )
+                'groups' => [self::GROUP_ADVANCED],
+            ]
         );
 
         $builder->add(
             'filter_by_content_type',
             ParameterType\Compound\BooleanType::class,
-            array(
-                'groups' => array(self::GROUP_ADVANCED),
-            )
+            [
+                'groups' => [self::GROUP_ADVANCED],
+            ]
         );
 
         $builder->get('filter_by_content_type')->add(
             'content_types',
             EzParameterType\ContentTypeType::class,
-            array(
+            [
                 'multiple' => true,
-                'groups' => array(self::GROUP_ADVANCED),
-            )
+                'groups' => [self::GROUP_ADVANCED],
+            ]
         );
 
         $builder->get('filter_by_content_type')->add(
             'content_types_filter',
             ParameterType\ChoiceType::class,
-            array(
+            [
                 'required' => true,
-                'options' => array(
+                'options' => [
                     'Include content types' => 'include',
                     'Exclude content types' => 'exclude',
-                ),
-                'groups' => array(self::GROUP_ADVANCED),
-            )
+                ],
+                'groups' => [self::GROUP_ADVANCED],
+            ]
         );
     }
 
@@ -211,7 +211,7 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
         $sortDirection = $query->getParameter('sort_direction')->getValue() ?: LocationQuery::SORT_DESC;
 
         if (count($relatedContentIds) === 0) {
-            return array();
+            return [];
         }
 
         $locationQuery = $this->buildLocationQuery($relatedContentIds, $query, false, $offset, $limit);
@@ -222,7 +222,7 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
 
         $searchResult = $this->searchService->findLocations(
             $locationQuery,
-            array('languages' => $this->languages)
+            ['languages' => $this->languages]
         );
 
         $locations = array_map(
@@ -249,7 +249,7 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
 
         $searchResult = $this->searchService->findLocations(
             $this->buildLocationQuery($relatedContentIds, $query, true),
-            array('languages' => $this->languages)
+            ['languages' => $this->languages]
         );
 
         return $searchResult->totalCount;
@@ -269,7 +269,7 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
      */
     private function getContentTypeIds(array $contentTypeIdentifiers)
     {
-        $idList = array();
+        $idList = [];
 
         foreach ($contentTypeIdentifiers as $identifier) {
             try {
@@ -355,7 +355,7 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
         $content = $this->getSelectedContent($query);
 
         if ($content === null) {
-            return array();
+            return [];
         }
 
         $fieldDefinitionIdentifier = $query->getParameter('field_definition_identifier')->getValue();
@@ -366,7 +366,7 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
         );
 
         if ($field === null || !$field->value instanceof RelationListValue) {
-            return array();
+            return [];
         }
 
         return $field->value->destinationContentIds;
@@ -422,10 +422,10 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
             $relatedContentIds = array_slice($relatedContentIds, $offset, $limit);
         }
 
-        $criteria = array(
+        $criteria = [
             new Criterion\ContentId($relatedContentIds),
             new Criterion\Visibility(Criterion\Visibility::VISIBLE),
-        );
+        ];
 
         if ($query->getParameter('only_main_locations')->getValue()) {
             $criteria[] = new Criterion\Location\IsMainLocation(
@@ -457,9 +457,9 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
         }
 
         if ($sortType !== 'defined_by_field') {
-            $locationQuery->sortClauses = array(
+            $locationQuery->sortClauses = [
                 new $this->sortClauses[$sortType]($sortDirection),
-            );
+            ];
         }
 
         return $locationQuery;
