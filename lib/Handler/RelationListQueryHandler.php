@@ -69,7 +69,7 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
     /**
      * @var array
      */
-    private $sortClauses = [
+    private static $sortClauses = [
         'default' => SortClause\DatePublished::class,
         'date_published' => SortClause\DatePublished::class,
         'date_modified' => SortClause\DateModified::class,
@@ -458,7 +458,7 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
 
         if ($sortType !== 'defined_by_field') {
             $locationQuery->sortClauses = [
-                new $this->sortClauses[$sortType]($sortDirection),
+                new self::$sortClauses[$sortType]($sortDirection),
             ];
         }
 
