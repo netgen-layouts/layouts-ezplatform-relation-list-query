@@ -1,6 +1,7 @@
 {
     "name": "netgen/layouts-relation-list-query",
     "description": "Netgen Layouts relation list query",
+    "license": "proprietary",
     "authors": [
         {
             "name": "Netgen",
