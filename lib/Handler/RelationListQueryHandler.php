@@ -387,7 +387,7 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
 
         $locationId = $query->getParameter('location_id')->getValue();
         if (empty($locationId)) {
-            return;
+            return null;
         }
 
         try {
@@ -395,7 +395,7 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
 
             return $this->contentService->loadContent($location->contentId, $this->languages);
         } catch (Exception $e) {
-            return;
+            return null;
         }
     }
 
