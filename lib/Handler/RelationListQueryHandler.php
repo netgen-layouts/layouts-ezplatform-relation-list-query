@@ -332,15 +332,17 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
     /**
      * Return filtered limit value to use.
      *
-     * @param int $limit
+     * @param int|null $limit
      *
-     * @return int
+     * @return int|null
      */
     private function getLimit($limit)
     {
         if (is_int($limit) && $limit >= 0) {
             return $limit;
         }
+
+        return null;
     }
 
     /**
@@ -406,7 +408,7 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
      * @param \Netgen\BlockManager\API\Values\Collection\Query $query
      * @param bool $buildCountQuery
      * @param int $offset
-     * @param int $limit
+     * @param int|null $limit
      *
      * @return \eZ\Publish\API\Repository\Values\Content\LocationQuery
      */
@@ -453,7 +455,9 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
         $locationQuery->limit = 0;
         if (!$buildCountQuery) {
             $locationQuery->offset = $offset;
-            $locationQuery->limit = $limit;
+            if (is_int($limit)) {
+                $locationQuery->limit = $limit;
+            }
         }
 
         if ($sortType !== 'defined_by_field') {
