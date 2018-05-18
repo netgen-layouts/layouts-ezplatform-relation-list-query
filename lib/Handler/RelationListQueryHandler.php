@@ -316,7 +316,7 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
     /**
      * Return filtered offset value to use.
      *
-     * @param int $offset
+     * @param int|null $offset
      *
      * @return int
      */
