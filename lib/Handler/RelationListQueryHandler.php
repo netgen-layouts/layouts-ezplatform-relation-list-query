@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Netgen\Layouts\RelationListQuery\Handler;
 
 use Exception;
@@ -7,6 +9,7 @@ use eZ\Publish\API\Repository\ContentService;
 use eZ\Publish\API\Repository\Exceptions\NotFoundException;
 use eZ\Publish\API\Repository\LocationService;
 use eZ\Publish\API\Repository\SearchService;
+use eZ\Publish\API\Repository\Values\Content\Content;
 use eZ\Publish\API\Repository\Values\Content\Location;
 use eZ\Publish\API\Repository\Values\Content\LocationQuery;
 use eZ\Publish\API\Repository\Values\Content\Query\Criterion;
@@ -104,15 +107,13 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
 
     /**
      * Sets the current siteaccess languages into the handler.
-     *
-     * @param array $languages
      */
-    public function setLanguages(array $languages = null)
+    public function setLanguages(array $languages = null): void
     {
         $this->languages = is_array($languages) ? $languages : [];
     }
 
-    public function buildParameters(ParameterBuilderInterface $builder)
+    public function buildParameters(ParameterBuilderInterface $builder): void
     {
         $builder->add(
             'use_current_location',
@@ -239,7 +240,7 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
         return $locations;
     }
 
-    public function getCount(Query $query)
+    public function getCount(Query $query): int
     {
         $relatedContentIds = $this->getRelatedContentIds($query);
 
@@ -252,22 +253,18 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
             ['languages' => $this->languages]
         );
 
-        return $searchResult->totalCount;
+        return $searchResult->totalCount ?? 0;
     }
 
-    public function isContextual(Query $query)
+    public function isContextual(Query $query): bool
     {
         return $query->getParameter('use_current_location')->getValue() === true;
     }
 
     /**
      * Returns content type IDs for all existing content types.
-     *
-     * @param array $contentTypeIdentifiers
-     *
-     * @return array
      */
-    private function getContentTypeIds(array $contentTypeIdentifiers)
+    private function getContentTypeIds(array $contentTypeIdentifiers): array
     {
         $idList = [];
 
@@ -288,13 +285,13 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
      *
      * @param int[]|string[] $relatedContentIds
      * @param \eZ\Publish\API\Repository\Values\Content\Location[] $locations
-     * @param mixed $sortDirection
+     * @param string $sortDirection
      */
     private function sortLocationsByField(
         array $relatedContentIds,
         array &$locations,
-        $sortDirection
-    ) {
+        string $sortDirection
+    ): void {
         $sortMap = array_flip($relatedContentIds);
 
         usort(
@@ -305,38 +302,26 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
                 }
 
                 if ($sortDirection === LocationQuery::SORT_ASC) {
-                    return ($sortMap[$location1->contentId] < $sortMap[$location2->contentId]) ? -1 : 1;
+                    return $sortMap[$location1->contentId] <=> $sortMap[$location2->contentId];
                 }
 
-                return ($sortMap[$location1->contentId] > $sortMap[$location2->contentId]) ? -1 : 1;
+                return $sortMap[$location2->contentId] <=> $sortMap[$location1->contentId];
             }
         );
     }
 
     /**
      * Return filtered offset value to use.
-     *
-     * @param int|null $offset
-     *
-     * @return int
      */
-    private function getOffset($offset)
+    private function getOffset(int $offset): int
     {
-        if (is_int($offset) && $offset >= 0) {
-            return $offset;
-        }
-
-        return 0;
+        return $offset >= 0 ? $offset : 0;
     }
 
     /**
      * Return filtered limit value to use.
-     *
-     * @param int|null $limit
-     *
-     * @return int|null
      */
-    private function getLimit($limit)
+    private function getLimit(int $limit = null): ?int
     {
         if (is_int($limit) && $limit >= 0) {
             return $limit;
@@ -347,12 +332,8 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
 
     /**
      * Returns a list of related Content IDs defined in the given collection $query.
-     *
-     * @param \Netgen\BlockManager\API\Values\Collection\Query $query
-     *
-     * @return int[]|string[]
      */
-    private function getRelatedContentIds(Query $query)
+    private function getRelatedContentIds(Query $query): array
     {
         $content = $this->getSelectedContent($query);
 
@@ -376,12 +357,8 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
 
     /**
      * Returns the selected Content item.
-     *
-     * @param \Netgen\BlockManager\API\Values\Collection\Query $query
-     *
-     * @return \eZ\Publish\API\Repository\Values\Content\Content|null
      */
-    private function getSelectedContent(Query $query)
+    private function getSelectedContent(Query $query): ?Content
     {
         if ($query->getParameter('use_current_location')->getValue()) {
             return $this->contentProvider->provideContent();
@@ -403,17 +380,14 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
 
     /**
      * Builds the Location query from given parameters.
-     *
-     * @param array $relatedContentIds
-     * @param \Netgen\BlockManager\API\Values\Collection\Query $query
-     * @param bool $buildCountQuery
-     * @param int $offset
-     * @param int|null $limit
-     *
-     * @return \eZ\Publish\API\Repository\Values\Content\LocationQuery
      */
-    private function buildLocationQuery(array $relatedContentIds, Query $query, $buildCountQuery = false, $offset = 0, $limit = null)
-    {
+    private function buildLocationQuery(
+        array $relatedContentIds,
+        Query $query,
+        bool $buildCountQuery = false,
+        int $offset = 0,
+        int $limit = null
+    ): LocationQuery {
         $locationQuery = new LocationQuery();
         $offset = $this->getOffset($offset);
         $limit = $this->getLimit($limit);
