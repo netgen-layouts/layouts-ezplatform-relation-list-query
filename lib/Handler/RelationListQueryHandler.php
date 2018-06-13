@@ -296,7 +296,7 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
 
         usort(
             $locations,
-            function (Location $location1, Location $location2) use ($sortMap, $sortDirection) {
+            function (Location $location1, Location $location2) use ($sortMap, $sortDirection): int {
                 if ($location1->contentId === $location2->contentId) {
                     return 0;
                 }
