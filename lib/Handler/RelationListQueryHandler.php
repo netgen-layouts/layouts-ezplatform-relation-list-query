@@ -208,8 +208,8 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
     public function getValues(Query $query, $offset = 0, $limit = null)
     {
         $relatedContentIds = $this->getRelatedContentIds($query);
-        $sortType = $query->getParameter('sort_type')->getValue() ?: 'default';
-        $sortDirection = $query->getParameter('sort_direction')->getValue() ?: LocationQuery::SORT_DESC;
+        $sortType = $query->getParameter('sort_type')->getValue() ?? 'default';
+        $sortDirection = $query->getParameter('sort_direction')->getValue() ?? LocationQuery::SORT_DESC;
 
         if (count($relatedContentIds) === 0) {
             return [];
@@ -391,8 +391,8 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
         $locationQuery = new LocationQuery();
         $offset = $this->getOffset($offset);
         $limit = $this->getLimit($limit);
-        $sortType = $query->getParameter('sort_type')->getValue() ?: 'default';
-        $sortDirection = $query->getParameter('sort_direction')->getValue() ?: LocationQuery::SORT_DESC;
+        $sortType = $query->getParameter('sort_type')->getValue() ?? 'default';
+        $sortDirection = $query->getParameter('sort_direction')->getValue() ?? LocationQuery::SORT_DESC;
 
         if ($sortType === 'defined_by_field') {
             $relatedContentIds = array_slice($relatedContentIds, $offset, $limit);
