@@ -360,7 +360,7 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
      */
     private function getSelectedContent(Query $query): ?Content
     {
-        if ($query->getParameter('use_current_location')->getValue()) {
+        if ($query->getParameter('use_current_location')->getValue() === true) {
             return $this->contentProvider->provideContent();
         }
 
@@ -403,13 +403,13 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
             new Criterion\Visibility(Criterion\Visibility::VISIBLE),
         ];
 
-        if ($query->getParameter('only_main_locations')->getValue()) {
+        if ($query->getParameter('only_main_locations')->getValue() === true) {
             $criteria[] = new Criterion\Location\IsMainLocation(
                 Criterion\Location\IsMainLocation::MAIN
             );
         }
 
-        if ($query->getParameter('filter_by_content_type')->getValue()) {
+        if ($query->getParameter('filter_by_content_type')->getValue() === true) {
             $contentTypes = $query->getParameter('content_types')->getValue();
             if (!empty($contentTypes)) {
                 $contentTypeFilter = new Criterion\ContentTypeId(
