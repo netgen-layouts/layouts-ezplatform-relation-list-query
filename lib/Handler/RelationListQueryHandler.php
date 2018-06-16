@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Netgen\Layouts\RelationListQuery\Handler;
 
-use Exception;
 use eZ\Publish\API\Repository\ContentService;
 use eZ\Publish\API\Repository\Exceptions\NotFoundException;
 use eZ\Publish\API\Repository\LocationService;
@@ -24,6 +23,7 @@ use Netgen\BlockManager\Ez\ContentProvider\ContentProviderInterface;
 use Netgen\BlockManager\Ez\Parameters\ParameterType as EzParameterType;
 use Netgen\BlockManager\Parameters\ParameterBuilderInterface;
 use Netgen\BlockManager\Parameters\ParameterType;
+use Throwable;
 
 /**
  * Query handler implementation providing values through eZ Platform relation list field.
@@ -373,7 +373,7 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
             $location = $this->locationService->loadLocation($locationId);
 
             return $this->contentService->loadContent($location->contentId, $this->languages);
-        } catch (Exception $e) {
+        } catch (Throwable $t) {
             return null;
         }
     }
