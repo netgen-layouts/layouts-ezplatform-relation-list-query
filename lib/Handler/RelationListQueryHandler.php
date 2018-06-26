@@ -108,7 +108,7 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
     /**
      * Sets the current siteaccess languages into the handler.
      */
-    public function setLanguages(array $languages = null): void
+    public function setLanguages(?array $languages = null): void
     {
         $this->languages = is_array($languages) ? $languages : [];
     }
@@ -321,7 +321,7 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
     /**
      * Return filtered limit value to use.
      */
-    private function getLimit(int $limit = null): ?int
+    private function getLimit(?int $limit = null): ?int
     {
         if (is_int($limit) && $limit >= 0) {
             return $limit;
@@ -386,7 +386,7 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
         Query $query,
         bool $buildCountQuery = false,
         int $offset = 0,
-        int $limit = null
+        ?int $limit = null
     ): LocationQuery {
         $locationQuery = new LocationQuery();
         $offset = $this->getOffset($offset);
