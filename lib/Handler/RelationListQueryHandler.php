@@ -205,7 +205,7 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
         );
     }
 
-    public function getValues(Query $query, $offset = 0, $limit = null)
+    public function getValues(Query $query, int $offset = 0, ?int $limit = null): iterable
     {
         $relatedContentIds = $this->getRelatedContentIds($query);
         $sortType = $query->getParameter('sort_type')->getValue() ?? 'default';
