@@ -2,6 +2,7 @@
     "name": "netgen/layouts-relation-list-query",
     "description": "Netgen Layouts relation list query",
     "license": "proprietary",
+    "type": "symfony-bundle",
     "authors": [
         {
             "name": "Netgen",
