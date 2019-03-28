@@ -332,6 +332,8 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
 
     /**
      * Returns a list of related Content IDs defined in the given collection $query.
+     *
+     * @return int[]|string[]
      */
     private function getRelatedContentIds(Query $query): array
     {
