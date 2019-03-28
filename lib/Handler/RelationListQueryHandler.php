@@ -365,7 +365,7 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
         }
 
         $locationId = $query->getParameter('location_id')->getValue();
-        if (empty($locationId)) {
+        if ($locationId === null) {
             return null;
         }
 
@@ -411,7 +411,7 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
 
         if ($query->getParameter('filter_by_content_type')->getValue() === true) {
             $contentTypes = $query->getParameter('content_types')->getValue();
-            if (!empty($contentTypes)) {
+            if (is_array($contentTypes) && count($contentTypes) > 0) {
                 $contentTypeFilter = new Criterion\ContentTypeId(
                     $this->getContentTypeIds($contentTypes)
                 );
