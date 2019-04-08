@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Netgen\Layouts\RelationListQuery\Handler;
 
-use eZ\Publish\API\Repository\ContentService;
 use eZ\Publish\API\Repository\Exceptions\NotFoundException;
 use eZ\Publish\API\Repository\LocationService;
 use eZ\Publish\API\Repository\SearchService;
@@ -15,7 +14,6 @@ use eZ\Publish\API\Repository\Values\Content\Query\Criterion;
 use eZ\Publish\API\Repository\Values\Content\Query\SortClause;
 use eZ\Publish\API\Repository\Values\Content\Search\SearchHit;
 use eZ\Publish\Core\FieldType\RelationList\Value as RelationListValue;
-use eZ\Publish\Core\Helper\TranslationHelper;
 use eZ\Publish\SPI\Persistence\Content\Type\Handler;
 use Netgen\BlockManager\API\Values\Collection\Query;
 use Netgen\BlockManager\Collection\QueryType\QueryTypeHandlerInterface;
@@ -38,11 +36,6 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
     private $locationService;
 
     /**
-     * @var \eZ\Publish\API\Repository\ContentService
-     */
-    private $contentService;
-
-    /**
      * @var \eZ\Publish\API\Repository\SearchService
      */
     private $searchService;
@@ -51,11 +44,6 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
      * @var \eZ\Publish\SPI\Persistence\Content\Type\Handler
      */
     private $contentTypeHandler;
-
-    /**
-     * @var \eZ\Publish\Core\Helper\TranslationHelper
-     */
-    private $translationHelper;
 
     /**
      * @var \Netgen\BlockManager\Ez\ContentProvider\ContentProviderInterface
@@ -91,17 +79,13 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
 
     public function __construct(
         LocationService $locationService,
-        ContentService $contentService,
         SearchService $searchService,
         Handler $contentTypeHandler,
-        TranslationHelper $translationHelper,
         ContentProviderInterface $contentProvider
     ) {
         $this->locationService = $locationService;
-        $this->contentService = $contentService;
         $this->searchService = $searchService;
         $this->contentTypeHandler = $contentTypeHandler;
-        $this->translationHelper = $translationHelper;
         $this->contentProvider = $contentProvider;
     }
 
@@ -344,17 +328,13 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
         }
 
         $fieldDefinitionIdentifier = $query->getParameter('field_definition_identifier')->getValue();
+        $fieldValue = $content->getFieldValue($fieldDefinitionIdentifier);
 
-        $field = $this->translationHelper->getTranslatedField(
-            $content,
-            $fieldDefinitionIdentifier
-        );
-
-        if ($field === null || !$field->value instanceof RelationListValue) {
+        if ($fieldValue === null || !$fieldValue instanceof RelationListValue) {
             return [];
         }
 
-        return $field->value->destinationContentIds;
+        return $fieldValue->destinationContentIds;
     }
 
     /**
@@ -372,9 +352,7 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
         }
 
         try {
-            $location = $this->locationService->loadLocation($locationId);
-
-            return $this->contentService->loadContent($location->contentId, $this->languages);
+            return $this->locationService->loadLocation($locationId)->getContent();
         } catch (Throwable $t) {
             return null;
         }
