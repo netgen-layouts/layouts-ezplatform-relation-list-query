@@ -27,7 +27,7 @@ final class NetgenLayoutsRelationListQueryExtension extends Extension implements
     public function prepend(ContainerBuilder $container): void
     {
         $prependConfigs = [
-            'query_types.yml' => 'netgen_block_manager',
+            'query_types.yml' => 'netgen_layouts',
         ];
 
         foreach ($prependConfigs as $configFile => $prependConfig) {
