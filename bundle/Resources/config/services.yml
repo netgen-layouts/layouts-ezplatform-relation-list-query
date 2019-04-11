@@ -1,5 +1,5 @@
 services:
-    netgen_block_manager.collection.query_type.handler.ezcontent_relation_list:
+    netgen_layouts.relation_list_query.handler:
         class: Netgen\Layouts\RelationListQuery\Handler\RelationListQueryHandler
         # Needs to be lazy since we're injecting "languages" dynamic param
         lazy: true
