@@ -11,4 +11,4 @@ services:
         calls:
             - [setLanguages, ["$languages$"]]
         tags:
-            - { name: netgen_block_manager.collection.query_type_handler, type: ezcontent_relation_list }
+            - { name: netgen_layouts.query_type_handler, type: ezcontent_relation_list }
