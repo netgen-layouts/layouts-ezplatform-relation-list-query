@@ -14,6 +14,7 @@ use eZ\Publish\API\Repository\Values\Content\Query\Criterion;
 use eZ\Publish\API\Repository\Values\Content\Query\SortClause;
 use eZ\Publish\API\Repository\Values\Content\Search\SearchHit;
 use eZ\Publish\Core\FieldType\RelationList\Value as RelationListValue;
+use eZ\Publish\Core\MVC\ConfigResolverInterface;
 use eZ\Publish\SPI\Persistence\Content\Type\Handler;
 use Netgen\Layouts\API\Values\Collection\Query;
 use Netgen\Layouts\Collection\QueryType\QueryTypeHandlerInterface;
@@ -25,10 +26,8 @@ use Throwable;
 
 /**
  * Query handler implementation providing values through eZ Platform relation list field.
- *
- * @final
  */
-class RelationListQueryHandler implements QueryTypeHandlerInterface
+final class RelationListQueryHandler implements QueryTypeHandlerInterface
 {
     /**
      * @var \eZ\Publish\API\Repository\LocationService
@@ -51,11 +50,9 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
     private $contentProvider;
 
     /**
-     * Injected list of prioritized languages.
-     *
-     * @var array
+     * @var \eZ\Publish\Core\MVC\ConfigResolverInterface
      */
-    private $languages = [];
+    private $configResolver;
 
     /**
      * @var array
@@ -81,20 +78,14 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
         LocationService $locationService,
         SearchService $searchService,
         Handler $contentTypeHandler,
-        ContentProviderInterface $contentProvider
+        ContentProviderInterface $contentProvider,
+        ConfigResolverInterface $configResolver
     ) {
         $this->locationService = $locationService;
         $this->searchService = $searchService;
         $this->contentTypeHandler = $contentTypeHandler;
         $this->contentProvider = $contentProvider;
-    }
-
-    /**
-     * Sets the current siteaccess languages into the handler.
-     */
-    public function setLanguages(?array $languages = null): void
-    {
-        $this->languages = $languages ?? [];
+        $this->configResolver = $configResolver;
     }
 
     public function buildParameters(ParameterBuilderInterface $builder): void
@@ -207,7 +198,7 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
 
         $searchResult = $this->searchService->findLocations(
             $locationQuery,
-            ['languages' => $this->languages]
+            ['languages' => $this->configResolver->getParameter('languages')]
         );
 
         $locations = array_map(
@@ -234,7 +225,7 @@ class RelationListQueryHandler implements QueryTypeHandlerInterface
 
         $searchResult = $this->searchService->findLocations(
             $this->buildLocationQuery($relatedContentIds, $query, true),
-            ['languages' => $this->languages]
+            ['languages' => $this->configResolver->getParameter('languages')]
         );
 
         return $searchResult->totalCount ?? 0;
