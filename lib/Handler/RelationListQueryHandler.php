@@ -201,6 +201,7 @@ final class RelationListQueryHandler implements QueryTypeHandlerInterface
             ['languages' => $this->configResolver->getParameter('languages')]
         );
 
+        /** @var \eZ\Publish\API\Repository\Values\Content\Location[] $locations */
         $locations = array_map(
             static function (SearchHit $searchHit) {
                 return $searchHit->valueObject;
@@ -406,9 +407,9 @@ final class RelationListQueryHandler implements QueryTypeHandlerInterface
         }
 
         if ($sortType !== 'defined_by_field') {
-            $locationQuery->sortClauses = [
-                new self::$sortClauses[$sortType]($sortDirection),
-            ];
+            /** @var \eZ\Publish\API\Repository\Values\Content\Query\SortClause $sortClause */
+            $sortClause = new self::$sortClauses[$sortType]($sortDirection);
+            $locationQuery->sortClauses = [$sortClause];
         }
 
         return $locationQuery;
