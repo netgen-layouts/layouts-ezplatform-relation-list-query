@@ -10,7 +10,7 @@ block via relation list field type available in any content in eZ Platform CMS.
 Run the following from your installation root to install the package:
 
 ```bash
-$ composer require netgen/layouts-relation-list-query
+$ composer require netgen/layouts-ezplatform-relation-list-query
 ```
 
 ### Activate the bundle in your app kernel

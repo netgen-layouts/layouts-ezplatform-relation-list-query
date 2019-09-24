@@ -1,6 +1,6 @@
 {
-    "name": "netgen/layouts-relation-list-query",
-    "description": "Netgen Layouts relation list query",
+    "name": "netgen/layouts-ezplatform-relation-list-query",
+    "description": "Query for Netgen Layouts based on relation list field type for eZ Platform",
     "license": "GPL-2.0-or-later",
     "type": "symfony-bundle",
     "authors": [
