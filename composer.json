@@ -1,6 +1,6 @@
 {
     "name": "netgen/layouts-ezplatform-relation-list-query",
-    "description": "Query for Netgen Layouts based on relation list field type for eZ Platform",
+    "description": "Netgen Layouts query based on relation list field type for eZ Platform",
     "license": "GPL-2.0-or-later",
     "type": "symfony-bundle",
     "authors": [
@@ -17,21 +17,24 @@
         "phpstan/phpstan-strict-rules": "^0.11",
         "vimeo/psalm": "^3.4"
     },
+    "conflict": {
+        "netgen/layouts-relation-list-query": "*"
+    },
     "scripts": {
         "phpstan": "@php vendor/bin/phpstan analyse -c phpstan.neon --level=7 --ansi lib bundle",
         "psalm": "@php vendor/bin/psalm -c psalm.xml --show-info=false"
     },
     "autoload": {
         "psr-4": {
-            "Netgen\\Layouts\\RelationListQuery\\": "lib/",
-            "Netgen\\Bundle\\LayoutsRelationListQueryBundle\\": "bundle/"
+            "Netgen\\Layouts\\Ez\\RelationListQuery\\": "lib/",
+            "Netgen\\Bundle\\LayoutsEzPlatformRelationListQueryBundle\\": "bundle/"
         }
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
     "extra": {
         "branch-alias": {
-            "dev-master": "3.x-dev"
+            "dev-master": "1.x-dev"
         }
     }
 }

@@ -1,6 +1,6 @@
 services:
     netgen_layouts.relation_list_query.handler:
-        class: Netgen\Layouts\RelationListQuery\Handler\RelationListQueryHandler
+        class: Netgen\Layouts\Ez\RelationListQuery\Handler\RelationListQueryHandler
         arguments:
             - "@ezpublish.api.service.location"
             - "@netgen_layouts.ezplatform.search_service"

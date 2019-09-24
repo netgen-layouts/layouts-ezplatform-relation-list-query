@@ -1,4 +1,4 @@
-# Netgen Layouts Relation List Query
+# Netgen Layouts query based on relation list field type for eZ Platform
 
 This bundle provides Netgen Layouts query that makes it possible to add items to
 block via relation list field type available in any content in eZ Platform CMS.
@@ -21,7 +21,7 @@ Add the following to the list of activated bundles:
 $bundles = [
 ...
 
-new Netgen\Bundle\LayoutsRelationListQueryBundle\NetgenLayoutsRelationListQueryBundle(),
+new Netgen\Bundle\LayoutsEzPlatformRelationListQueryBundle\NetgenLayoutsEzPlatformRelationListQueryBundle(),
 
 ...
 ];
