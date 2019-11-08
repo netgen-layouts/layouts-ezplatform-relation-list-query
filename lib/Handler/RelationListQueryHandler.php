@@ -344,7 +344,7 @@ final class RelationListQueryHandler implements QueryTypeHandlerInterface
         }
 
         try {
-            return $this->locationService->loadLocation($locationId)->getContent();
+            return $this->locationService->loadLocation((int) $locationId)->getContent();
         } catch (Throwable $t) {
             return null;
         }
