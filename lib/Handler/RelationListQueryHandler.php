@@ -13,6 +13,7 @@ use eZ\Publish\API\Repository\Values\Content\LocationQuery;
 use eZ\Publish\API\Repository\Values\Content\Query\Criterion;
 use eZ\Publish\API\Repository\Values\Content\Query\SortClause;
 use eZ\Publish\API\Repository\Values\Content\Search\SearchHit;
+use eZ\Publish\API\Repository\Values\ValueObject;
 use eZ\Publish\Core\FieldType\RelationList\Value as RelationListValue;
 use eZ\Publish\Core\MVC\ConfigResolverInterface;
 use eZ\Publish\SPI\Persistence\Content\Type\Handler;
@@ -55,7 +56,7 @@ final class RelationListQueryHandler implements QueryTypeHandlerInterface
     private $configResolver;
 
     /**
-     * @var array
+     * @var class-string[]
      */
     private static $sortClauses = [
         'default' => SortClause\DatePublished::class,
@@ -203,7 +204,7 @@ final class RelationListQueryHandler implements QueryTypeHandlerInterface
 
         /** @var \eZ\Publish\API\Repository\Values\Content\Location[] $locations */
         $locations = array_map(
-            static function (SearchHit $searchHit) {
+            static function (SearchHit $searchHit): ValueObject {
                 return $searchHit->valueObject;
             },
             $searchResult->searchHits
@@ -239,6 +240,10 @@ final class RelationListQueryHandler implements QueryTypeHandlerInterface
 
     /**
      * Returns content type IDs for all existing content types.
+     *
+     * @param string[] $contentTypeIdentifiers
+     *
+     * @return int[]
      */
     private function getContentTypeIds(array $contentTypeIdentifiers): array
     {
@@ -309,7 +314,7 @@ final class RelationListQueryHandler implements QueryTypeHandlerInterface
     /**
      * Returns a list of related Content IDs defined in the given collection $query.
      *
-     * @return int[]|string[]
+     * @return int[]
      */
     private function getRelatedContentIds(Query $query): array
     {
@@ -352,6 +357,8 @@ final class RelationListQueryHandler implements QueryTypeHandlerInterface
 
     /**
      * Builds the Location query from given parameters.
+     *
+     * @param int[] $relatedContentIds
      */
     private function buildLocationQuery(
         array $relatedContentIds,
