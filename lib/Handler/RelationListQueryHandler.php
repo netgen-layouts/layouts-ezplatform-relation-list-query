@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Netgen\Layouts\Ez\RelationListQuery\Handler;
 
-use eZ\Publish\API\Repository\Exceptions\NotFoundException;
 use eZ\Publish\API\Repository\LocationService;
 use eZ\Publish\API\Repository\SearchService;
 use eZ\Publish\API\Repository\Values\Content\Content;
@@ -16,7 +15,6 @@ use eZ\Publish\API\Repository\Values\Content\Search\SearchHit;
 use eZ\Publish\API\Repository\Values\ValueObject;
 use eZ\Publish\Core\FieldType\RelationList\Value as RelationListValue;
 use eZ\Publish\Core\MVC\ConfigResolverInterface;
-use eZ\Publish\SPI\Persistence\Content\Type\Handler;
 use Netgen\Layouts\API\Values\Collection\Query;
 use Netgen\Layouts\Collection\QueryType\QueryTypeHandlerInterface;
 use Netgen\Layouts\Ez\ContentProvider\ContentProviderInterface;
@@ -39,11 +37,6 @@ final class RelationListQueryHandler implements QueryTypeHandlerInterface
      * @var \eZ\Publish\API\Repository\SearchService
      */
     private $searchService;
-
-    /**
-     * @var \eZ\Publish\SPI\Persistence\Content\Type\Handler
-     */
-    private $contentTypeHandler;
 
     /**
      * @var \Netgen\Layouts\Ez\ContentProvider\ContentProviderInterface
@@ -78,13 +71,11 @@ final class RelationListQueryHandler implements QueryTypeHandlerInterface
     public function __construct(
         LocationService $locationService,
         SearchService $searchService,
-        Handler $contentTypeHandler,
         ContentProviderInterface $contentProvider,
         ConfigResolverInterface $configResolver
     ) {
         $this->locationService = $locationService;
         $this->searchService = $searchService;
-        $this->contentTypeHandler = $contentTypeHandler;
         $this->contentProvider = $contentProvider;
         $this->configResolver = $configResolver;
     }
@@ -239,29 +230,6 @@ final class RelationListQueryHandler implements QueryTypeHandlerInterface
     }
 
     /**
-     * Returns content type IDs for all existing content types.
-     *
-     * @param string[] $contentTypeIdentifiers
-     *
-     * @return int[]
-     */
-    private function getContentTypeIds(array $contentTypeIdentifiers): array
-    {
-        $idList = [];
-
-        foreach ($contentTypeIdentifiers as $identifier) {
-            try {
-                $contentType = $this->contentTypeHandler->loadByIdentifier($identifier);
-                $idList[] = $contentType->id;
-            } catch (NotFoundException $e) {
-                continue;
-            }
-        }
-
-        return $idList;
-    }
-
-    /**
      * Sort given $locations as defined by the given $relatedContentIds.
      *
      * @param int[]|string[] $relatedContentIds
@@ -391,9 +359,7 @@ final class RelationListQueryHandler implements QueryTypeHandlerInterface
         if ($query->getParameter('filter_by_content_type')->getValue() === true) {
             $contentTypes = $query->getParameter('content_types')->getValue();
             if (is_array($contentTypes) && count($contentTypes) > 0) {
-                $contentTypeFilter = new Criterion\ContentTypeId(
-                    $this->getContentTypeIds($contentTypes)
-                );
+                $contentTypeFilter = new Criterion\ContentTypeIdentifier($contentTypes);
 
                 if ($query->getParameter('content_types_filter')->getValue() === 'exclude') {
                     $contentTypeFilter = new Criterion\LogicalNot($contentTypeFilter);

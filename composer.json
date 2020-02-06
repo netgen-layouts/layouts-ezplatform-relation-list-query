@@ -10,7 +10,7 @@
         }
     ],
     "require": {
-        "netgen/layouts-ezplatform": "^1.0"
+        "netgen/layouts-ezplatform": "^1.2"
     },
     "require-dev": {
         "phpstan/phpstan": "^0.12",
