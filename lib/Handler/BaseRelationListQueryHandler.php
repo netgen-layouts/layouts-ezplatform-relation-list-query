@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Netgen\Layouts\Ez\RelationListQuery\Handler;
 
-use eZ\Publish\API\Repository\LocationService;
 use eZ\Publish\API\Repository\Values\Content\Content;
 use eZ\Publish\API\Repository\Values\Content\Location;
 use eZ\Publish\API\Repository\Values\Content\Query\SortClause;
@@ -16,7 +15,7 @@ use Throwable;
 abstract class BaseRelationListQueryHandler implements QueryTypeHandlerInterface
 {
     /**
-     * @var LocationService
+     * @var \eZ\Publish\API\Repository\LocationService
      */
     protected $locationService;
 
@@ -58,10 +57,6 @@ abstract class BaseRelationListQueryHandler implements QueryTypeHandlerInterface
 
     /**
      * Returns the selected Content item.
-     *
-     * @param Query $query
-     *
-     * @return Content|null
      */
     protected function getSelectedContent(Query $query): ?Content
     {
@@ -83,10 +78,6 @@ abstract class BaseRelationListQueryHandler implements QueryTypeHandlerInterface
 
     /**
      * Return filtered offset value to use.
-     *
-     * @param int $offset
-     *
-     * @return int
      */
     protected function getOffset(int $offset): int
     {
@@ -95,10 +86,6 @@ abstract class BaseRelationListQueryHandler implements QueryTypeHandlerInterface
 
     /**
      * Return filtered limit value to use.
-     *
-     * @param int|null $limit
-     *
-     * @return int|null
      */
     protected function getLimit(?int $limit = null): ?int
     {
