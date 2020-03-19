@@ -1,3 +1,6 @@
 query_types:
     ezcontent_relation_list:
         name: 'eZ Platform relation list'
+
+    ezcontent_reverse_relation_list:
+        name: 'eZ Platform reverse relation list'

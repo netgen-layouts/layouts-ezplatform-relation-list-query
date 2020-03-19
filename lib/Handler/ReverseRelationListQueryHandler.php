@@ -4,17 +4,14 @@ declare(strict_types=1);
 
 namespace Netgen\Layouts\Ez\RelationListQuery\Handler;
 
-use eZ\Publish\API\Repository\Exceptions\NotFoundException;
+use eZ\Publish\API\Repository\ContentService;
 use eZ\Publish\API\Repository\LocationService;
 use eZ\Publish\API\Repository\SearchService;
-use eZ\Publish\API\Repository\Values\Content\Location;
 use eZ\Publish\API\Repository\Values\Content\LocationQuery;
 use eZ\Publish\API\Repository\Values\Content\Query\Criterion;
 use eZ\Publish\API\Repository\Values\Content\Search\SearchHit;
 use eZ\Publish\API\Repository\Values\ValueObject;
-use eZ\Publish\Core\FieldType\RelationList\Value as RelationListValue;
 use eZ\Publish\Core\MVC\ConfigResolverInterface;
-use eZ\Publish\SPI\Persistence\Content\Type\Handler;
 use Netgen\Layouts\API\Values\Collection\Query;
 use Netgen\Layouts\Ez\ContentProvider\ContentProviderInterface;
 use Netgen\Layouts\Ez\Parameters\ParameterType as EzParameterType;
@@ -22,24 +19,19 @@ use Netgen\Layouts\Parameters\ParameterBuilderInterface;
 use Netgen\Layouts\Parameters\ParameterType;
 
 /**
- * Query handler implementation providing values through eZ Platform relation list field.
+ * Query handler implementation providing values through eZ Platform reverse relation.
  */
-final class RelationListQueryHandler extends BaseRelationListQueryHandler
+final class ReverseRelationListQueryHandler extends BaseRelationListQueryHandler
 {
+    /**
+     * @var \eZ\Publish\API\Repository\ContentService
+     */
+    private $contentService;
+
     /**
      * @var \eZ\Publish\API\Repository\SearchService
      */
     private $searchService;
-
-    /**
-     * @var \eZ\Publish\SPI\Persistence\Content\Type\Handler
-     */
-    private $contentTypeHandler;
-
-    /**
-     * @var \Netgen\Layouts\Ez\ContentProvider\ContentProviderInterface
-     */
-    private $contentProvider;
 
     /**
      * @var \eZ\Publish\Core\MVC\ConfigResolverInterface
@@ -48,16 +40,16 @@ final class RelationListQueryHandler extends BaseRelationListQueryHandler
 
     public function __construct(
         LocationService $locationService,
+        ContentService $contentService,
         SearchService $searchService,
-        Handler $contentTypeHandler,
         ContentProviderInterface $contentProvider,
         ConfigResolverInterface $configResolver
     ) {
-        $this->locationService = $locationService;
+        $this->contentService = $contentService;
         $this->searchService = $searchService;
-        $this->contentTypeHandler = $contentTypeHandler;
         $this->contentProvider = $contentProvider;
         $this->configResolver = $configResolver;
+        $this->locationService = $locationService;
     }
 
     public function buildParameters(ParameterBuilderInterface $builder): void
@@ -79,20 +71,11 @@ final class RelationListQueryHandler extends BaseRelationListQueryHandler
         );
 
         $builder->add(
-            'field_definition_identifier',
-            ParameterType\TextLineType::class,
-            [
-                'required' => true,
-            ]
-        );
-
-        $builder->add(
             'sort_type',
             ParameterType\ChoiceType::class,
             [
                 'required' => true,
                 'options' => [
-                    'Defined by field' => 'defined_by_field',
                     'Published' => 'date_published',
                     'Modified' => 'date_modified',
                     'Alphabetical' => 'content_name',
@@ -109,15 +92,6 @@ final class RelationListQueryHandler extends BaseRelationListQueryHandler
                     'Descending' => LocationQuery::SORT_DESC,
                     'Ascending' => LocationQuery::SORT_ASC,
                 ],
-            ]
-        );
-
-        $builder->add(
-            'only_main_locations',
-            ParameterType\BooleanType::class,
-            [
-                'default_value' => true,
-                'groups' => [self::GROUP_ADVANCED],
             ]
         );
 
@@ -150,19 +124,35 @@ final class RelationListQueryHandler extends BaseRelationListQueryHandler
                 'groups' => [self::GROUP_ADVANCED],
             ]
         );
+
+        $builder->get('filter_by_content_type')->add(
+            'field_definition_identifier',
+            ParameterType\TextLineType::class,
+            [
+                'required' => false,
+                'groups' => [self::GROUP_ADVANCED],
+            ]
+        );
+
+        $builder->add(
+            'only_main_locations',
+            ParameterType\BooleanType::class,
+            [
+                'default_value' => true,
+                'groups' => [self::GROUP_ADVANCED],
+            ]
+        );
     }
 
     public function getValues(Query $query, int $offset = 0, ?int $limit = null): iterable
     {
-        $relatedContentIds = $this->getRelatedContentIds($query);
-        $sortType = $query->getParameter('sort_type')->getValue() ?? 'default';
-        $sortDirection = $query->getParameter('sort_direction')->getValue() ?? LocationQuery::SORT_DESC;
+        $reverseRelatedContentIds = $this->getReverseRelatedContentIds($query);
 
-        if (count($relatedContentIds) === 0) {
+        if (count($reverseRelatedContentIds) === 0) {
             return [];
         }
 
-        $locationQuery = $this->buildLocationQuery($relatedContentIds, $query, false, $offset, $limit);
+        $locationQuery = $this->buildLocationQuery($reverseRelatedContentIds, $query, false, $offset, $limit);
 
         // We're disabling query count for performance reasons, however
         // it can only be disabled if limit is not 0
@@ -181,16 +171,17 @@ final class RelationListQueryHandler extends BaseRelationListQueryHandler
             $searchResult->searchHits
         );
 
-        if ($sortType === 'defined_by_field') {
-            $this->sortLocationsByField($relatedContentIds, $locations, $sortDirection);
-        }
-
         return $locations;
     }
 
     public function getCount(Query $query): int
     {
-        $relatedContentIds = $this->getRelatedContentIds($query);
+        $content = $this->getSelectedContent($query);
+        if ($content === null) {
+            return 0;
+        }
+
+        $relatedContentIds = $this->getReverseRelatedContentIds($query);
 
         if (count($relatedContentIds) === 0) {
             return 0;
@@ -205,64 +196,15 @@ final class RelationListQueryHandler extends BaseRelationListQueryHandler
     }
 
     /**
-     * Returns content type IDs for all existing content types.
+     * Returns a list Content IDs whose content relates to selected content.
      *
-     * @param string[] $contentTypeIdentifiers
+     * @param Query $query
      *
-     * @return int[]
-     */
-    private function getContentTypeIds(array $contentTypeIdentifiers): array
-    {
-        $idList = [];
-
-        foreach ($contentTypeIdentifiers as $identifier) {
-            try {
-                $contentType = $this->contentTypeHandler->loadByIdentifier($identifier);
-                $idList[] = $contentType->id;
-            } catch (NotFoundException $e) {
-                continue;
-            }
-        }
-
-        return $idList;
-    }
-
-    /**
-     * Sort given $locations as defined by the given $relatedContentIds.
-     *
-     * @param int[]|string[] $relatedContentIds
-     * @param \eZ\Publish\API\Repository\Values\Content\Location[] $locations
-     * @param string $sortDirection
-     */
-    private function sortLocationsByField(
-        array $relatedContentIds,
-        array &$locations,
-        string $sortDirection
-    ): void {
-        $sortMap = array_flip($relatedContentIds);
-
-        usort(
-            $locations,
-            static function (Location $location1, Location $location2) use ($sortMap, $sortDirection): int {
-                if ($location1->contentId === $location2->contentId) {
-                    return 0;
-                }
-
-                if ($sortDirection === LocationQuery::SORT_ASC) {
-                    return $sortMap[$location1->contentId] <=> $sortMap[$location2->contentId];
-                }
-
-                return $sortMap[$location2->contentId] <=> $sortMap[$location1->contentId];
-            }
-        );
-    }
-
-    /**
-     * Returns a list of related Content IDs defined in the given collection $query.
+     * @throws \eZ\Publish\API\Repository\Exceptions\UnauthorizedException
      *
      * @return int[]
      */
-    private function getRelatedContentIds(Query $query): array
+    private function getReverseRelatedContentIds(Query $query): array
     {
         $content = $this->getSelectedContent($query);
 
@@ -270,23 +212,28 @@ final class RelationListQueryHandler extends BaseRelationListQueryHandler
             return [];
         }
 
-        $fieldDefinitionIdentifier = $query->getParameter('field_definition_identifier')->getValue();
-        $fieldValue = $content->getFieldValue($fieldDefinitionIdentifier);
-
-        if ($fieldValue === null || !$fieldValue instanceof RelationListValue) {
-            return [];
+        $reverseRelations = $this->contentService->loadReverseRelations($content->contentInfo);
+        $contentIds = [];
+        foreach ($reverseRelations as $relation) {
+            $contentIds[] = $relation->getSourceContentInfo()->id;
         }
 
-        return $fieldValue->destinationContentIds;
+        return $contentIds;
     }
 
     /**
      * Builds the Location query from given parameters.
      *
-     * @param int[] $relatedContentIds
+     * @param array $reverseRelatedContentIds
+     * @param Query $query
+     * @param bool $buildCountQuery
+     * @param int $offset
+     * @param int|null $limit
+     *
+     * @return LocationQuery
      */
     private function buildLocationQuery(
-        array $relatedContentIds,
+        array $reverseRelatedContentIds,
         Query $query,
         bool $buildCountQuery = false,
         int $offset = 0,
@@ -298,12 +245,8 @@ final class RelationListQueryHandler extends BaseRelationListQueryHandler
         $sortType = $query->getParameter('sort_type')->getValue() ?? 'default';
         $sortDirection = $query->getParameter('sort_direction')->getValue() ?? LocationQuery::SORT_DESC;
 
-        if ($sortType === 'defined_by_field') {
-            $relatedContentIds = array_slice($relatedContentIds, $offset, $limit);
-        }
-
         $criteria = [
-            new Criterion\ContentId($relatedContentIds),
+            new Criterion\ContentId($reverseRelatedContentIds),
             new Criterion\Visibility(Criterion\Visibility::VISIBLE),
         ];
 
@@ -316,15 +259,18 @@ final class RelationListQueryHandler extends BaseRelationListQueryHandler
         if ($query->getParameter('filter_by_content_type')->getValue() === true) {
             $contentTypes = $query->getParameter('content_types')->getValue();
             if (is_array($contentTypes) && count($contentTypes) > 0) {
-                $contentTypeFilter = new Criterion\ContentTypeId(
-                    $this->getContentTypeIds($contentTypes)
-                );
+                $contentTypeFilter = new Criterion\ContentTypeIdentifier($contentTypes);
 
                 if ($query->getParameter('content_types_filter')->getValue() === 'exclude') {
                     $contentTypeFilter = new Criterion\LogicalNot($contentTypeFilter);
                 }
 
                 $criteria[] = $contentTypeFilter;
+            }
+            $fieldDefinitionIdentifier = $query->getParameter('field_definition_identifier')->getValue();
+            if ($fieldDefinitionIdentifier !== null) {
+                $contentId = $this->getSelectedContent($query)->id;
+                $criteria[] = new Criterion\Field($fieldDefinitionIdentifier, Criterion\Operator::CONTAINS, $contentId);
             }
         }
 
@@ -338,11 +284,9 @@ final class RelationListQueryHandler extends BaseRelationListQueryHandler
             }
         }
 
-        if ($sortType !== 'defined_by_field') {
-            /** @var \eZ\Publish\API\Repository\Values\Content\Query\SortClause $sortClause */
-            $sortClause = new self::$sortClauses[$sortType]($sortDirection);
-            $locationQuery->sortClauses = [$sortClause];
-        }
+        /** @var \eZ\Publish\API\Repository\Values\Content\Query\SortClause $sortClause */
+        $sortClause = new self::$sortClauses[$sortType]($sortDirection);
+        $locationQuery->sortClauses = [$sortClause];
 
         return $locationQuery;
     }
