@@ -8,3 +8,14 @@ services:
             - "@ezpublish.config.resolver"
         tags:
             - { name: netgen_layouts.query_type_handler, type: ezcontent_relation_list }
+
+    netgen_layouts.reverse_relation_list_query.handler:
+        class: Netgen\Layouts\Ez\RelationListQuery\Handler\ReverseRelationListQueryHandler
+        arguments:
+            - "@ezpublish.api.service.location"
+            - "@ezpublish.api.service.content"
+            - "@netgen_layouts.ezplatform.search_service"
+            - "@netgen_layouts.ezplatform.content_provider"
+            - "@ezpublish.config.resolver"
+        tags:
+            - { name: netgen_layouts.query_type_handler, type: ezcontent_reverse_relation_list }
