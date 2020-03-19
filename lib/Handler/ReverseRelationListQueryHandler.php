@@ -197,12 +197,6 @@ final class ReverseRelationListQueryHandler extends BaseRelationListQueryHandler
 
     /**
      * Returns a list Content IDs whose content relates to selected content.
-     *
-     * @param Query $query
-     *
-     * @throws \eZ\Publish\API\Repository\Exceptions\UnauthorizedException
-     *
-     * @return int[]
      */
     private function getReverseRelatedContentIds(Query $query): array
     {
@@ -224,13 +218,7 @@ final class ReverseRelationListQueryHandler extends BaseRelationListQueryHandler
     /**
      * Builds the Location query from given parameters.
      *
-     * @param array $reverseRelatedContentIds
-     * @param Query $query
-     * @param bool $buildCountQuery
-     * @param int $offset
-     * @param int|null $limit
-     *
-     * @return LocationQuery
+     * @param int[] $reverseRelatedContentIds
      */
     private function buildLocationQuery(
         array $reverseRelatedContentIds,
