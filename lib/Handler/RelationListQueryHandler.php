@@ -14,16 +14,20 @@ use eZ\Publish\API\Repository\Values\ValueObject;
 use eZ\Publish\Core\FieldType\RelationList\Value as RelationListValue;
 use eZ\Publish\Core\MVC\ConfigResolverInterface;
 use Netgen\Layouts\API\Values\Collection\Query;
+use Netgen\Layouts\Collection\QueryType\QueryTypeHandlerInterface;
 use Netgen\Layouts\Ez\ContentProvider\ContentProviderInterface;
 use Netgen\Layouts\Ez\Parameters\ParameterType as EzParameterType;
+use Netgen\Layouts\Ez\RelationListQuery\Handler\Traits\RelationListTrait;
 use Netgen\Layouts\Parameters\ParameterBuilderInterface;
 use Netgen\Layouts\Parameters\ParameterType;
 
 /**
  * Query handler implementation providing values through eZ Platform relation list field.
  */
-final class RelationListQueryHandler extends BaseRelationListQueryHandler
+final class RelationListQueryHandler implements QueryTypeHandlerInterface
 {
+    use RelationListTrait;
+
     /**
      * @var \eZ\Publish\API\Repository\SearchService
      */
