@@ -2,32 +2,30 @@
 
 declare(strict_types=1);
 
-namespace Netgen\Layouts\Ez\RelationListQuery\Handler;
+namespace Netgen\Layouts\Ez\RelationListQuery\Handler\Traits;
 
 use eZ\Publish\API\Repository\Values\Content\Content;
 use eZ\Publish\API\Repository\Values\Content\Location;
 use eZ\Publish\API\Repository\Values\Content\Query\SortClause;
 use Netgen\Layouts\API\Values\Collection\Query;
-use Netgen\Layouts\Collection\QueryType\QueryTypeHandlerInterface;
-use Netgen\Layouts\Parameters\ParameterBuilderInterface;
 use Throwable;
 
-abstract class BaseRelationListQueryHandler implements QueryTypeHandlerInterface
+trait RelationListTrait
 {
     /**
      * @var \eZ\Publish\API\Repository\LocationService
      */
-    protected $locationService;
+    private $locationService;
 
     /**
      * @var \Netgen\Layouts\Ez\ContentProvider\ContentProviderInterface
      */
-    protected $contentProvider;
+    private $contentProvider;
 
     /**
      * @var class-string[]
      */
-    protected static $sortClauses = [
+    private static $sortClauses = [
         'default' => SortClause\DatePublished::class,
         'date_published' => SortClause\DatePublished::class,
         'date_modified' => SortClause\DateModified::class,
@@ -44,12 +42,6 @@ abstract class BaseRelationListQueryHandler implements QueryTypeHandlerInterface
         Location::SORT_FIELD_CONTENTOBJECT_ID => SortClause\ContentId::class,
     ];
 
-    abstract public function buildParameters(ParameterBuilderInterface $builder): void;
-
-    abstract public function getValues(Query $query, int $offset = 0, ?int $limit = null): iterable;
-
-    abstract public function getCount(Query $query): int;
-
     public function isContextual(Query $query): bool
     {
         return $query->getParameter('use_current_location')->getValue() === true;
@@ -58,7 +50,7 @@ abstract class BaseRelationListQueryHandler implements QueryTypeHandlerInterface
     /**
      * Returns the selected Content item.
      */
-    protected function getSelectedContent(Query $query): ?Content
+    private function getSelectedContent(Query $query): ?Content
     {
         if ($query->getParameter('use_current_location')->getValue() === true) {
             return $this->contentProvider->provideContent();
@@ -79,7 +71,7 @@ abstract class BaseRelationListQueryHandler implements QueryTypeHandlerInterface
     /**
      * Return filtered offset value to use.
      */
-    protected function getOffset(int $offset): int
+    private function getOffset(int $offset): int
     {
         return $offset >= 0 ? $offset : 0;
     }
@@ -87,7 +79,7 @@ abstract class BaseRelationListQueryHandler implements QueryTypeHandlerInterface
     /**
      * Return filtered limit value to use.
      */
-    protected function getLimit(?int $limit = null): ?int
+    private function getLimit(?int $limit = null): ?int
     {
         if (is_int($limit) && $limit >= 0) {
             return $limit;

@@ -13,16 +13,20 @@ use eZ\Publish\API\Repository\Values\Content\Search\SearchHit;
 use eZ\Publish\API\Repository\Values\ValueObject;
 use eZ\Publish\Core\MVC\ConfigResolverInterface;
 use Netgen\Layouts\API\Values\Collection\Query;
+use Netgen\Layouts\Collection\QueryType\QueryTypeHandlerInterface;
 use Netgen\Layouts\Ez\ContentProvider\ContentProviderInterface;
 use Netgen\Layouts\Ez\Parameters\ParameterType as EzParameterType;
+use Netgen\Layouts\Ez\RelationListQuery\Handler\Traits\RelationListTrait;
 use Netgen\Layouts\Parameters\ParameterBuilderInterface;
 use Netgen\Layouts\Parameters\ParameterType;
 
 /**
  * Query handler implementation providing values through eZ Platform reverse relation.
  */
-final class ReverseRelationListQueryHandler extends BaseRelationListQueryHandler
+final class ReverseRelationListQueryHandler implements QueryTypeHandlerInterface
 {
+    use RelationListTrait;
+
     /**
      * @var \eZ\Publish\API\Repository\ContentService
      */
