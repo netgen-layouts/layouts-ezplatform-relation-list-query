@@ -28,8 +28,7 @@ use Netgen\Layouts\Parameters\ParameterType;
  */
 final class ReverseRelationListQueryHandler implements QueryTypeHandlerInterface
 {
-    use SelectedContentTrait
-        ;
+    use SelectedContentTrait;
 
     /**
      * @var class-string[]
