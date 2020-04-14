@@ -9,6 +9,7 @@ use eZ\Publish\API\Repository\LocationService;
 use eZ\Publish\API\Repository\SearchService;
 use eZ\Publish\API\Repository\Values\Content\LocationQuery;
 use eZ\Publish\API\Repository\Values\Content\Query\Criterion;
+use eZ\Publish\API\Repository\Values\Content\Query\SortClause;
 use eZ\Publish\API\Repository\Values\Content\Search\SearchHit;
 use eZ\Publish\API\Repository\Values\ValueObject;
 use eZ\Publish\Core\MVC\ConfigResolverInterface;
@@ -16,7 +17,7 @@ use Netgen\Layouts\API\Values\Collection\Query;
 use Netgen\Layouts\Collection\QueryType\QueryTypeHandlerInterface;
 use Netgen\Layouts\Ez\ContentProvider\ContentProviderInterface;
 use Netgen\Layouts\Ez\Parameters\ParameterType as EzParameterType;
-use Netgen\Layouts\Ez\RelationListQuery\Handler\Traits\RelationListTrait;
+use Netgen\Layouts\Ez\RelationListQuery\Handler\Traits\SelectedContentTrait;
 use Netgen\Layouts\Parameters\ParameterBuilderInterface;
 use Netgen\Layouts\Parameters\ParameterType;
 
@@ -25,7 +26,18 @@ use Netgen\Layouts\Parameters\ParameterType;
  */
 final class ReverseRelationListQueryHandler implements QueryTypeHandlerInterface
 {
-    use RelationListTrait;
+    use SelectedContentTrait
+        ;
+
+    /**
+     * @var class-string[]
+     */
+    private static $sortClauses = [
+        'default' => SortClause\DatePublished::class,
+        'date_published' => SortClause\DatePublished::class,
+        'date_modified' => SortClause\DateModified::class,
+        'content_name' => SortClause\ContentName::class,
+    ];
 
     /**
      * @var \eZ\Publish\API\Repository\ContentService
@@ -199,6 +211,11 @@ final class ReverseRelationListQueryHandler implements QueryTypeHandlerInterface
         return $searchResult->totalCount ?? 0;
     }
 
+    public function isContextual(Query $query): bool
+    {
+        return $query->getParameter('use_current_location')->getValue() === true;
+    }
+
     /**
      * Returns a list Content IDs whose content relates to selected content.
      */
@@ -232,8 +249,6 @@ final class ReverseRelationListQueryHandler implements QueryTypeHandlerInterface
         ?int $limit = null
     ): LocationQuery {
         $locationQuery = new LocationQuery();
-        $offset = $this->getOffset($offset);
-        $limit = $this->getLimit($limit);
         $sortType = $query->getParameter('sort_type')->getValue() ?? 'default';
         $sortDirection = $query->getParameter('sort_direction')->getValue() ?? LocationQuery::SORT_DESC;
 
@@ -271,7 +286,7 @@ final class ReverseRelationListQueryHandler implements QueryTypeHandlerInterface
         $locationQuery->limit = 0;
         if (!$buildCountQuery) {
             $locationQuery->offset = $offset;
-            if (is_int($limit)) {
+            if ($limit !== null) {
                 $locationQuery->limit = $limit;
             }
         }

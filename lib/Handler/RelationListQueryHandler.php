@@ -10,6 +10,7 @@ use eZ\Publish\API\Repository\SearchService;
 use eZ\Publish\API\Repository\Values\Content\Location;
 use eZ\Publish\API\Repository\Values\Content\LocationQuery;
 use eZ\Publish\API\Repository\Values\Content\Query\Criterion;
+use eZ\Publish\API\Repository\Values\Content\Query\SortClause;
 use eZ\Publish\API\Repository\Values\Content\Search\SearchHit;
 use eZ\Publish\API\Repository\Values\ValueObject;
 use eZ\Publish\Core\FieldType\RelationList\Value as RelationListValue;
@@ -19,7 +20,7 @@ use Netgen\Layouts\API\Values\Collection\Query;
 use Netgen\Layouts\Collection\QueryType\QueryTypeHandlerInterface;
 use Netgen\Layouts\Ez\ContentProvider\ContentProviderInterface;
 use Netgen\Layouts\Ez\Parameters\ParameterType as EzParameterType;
-use Netgen\Layouts\Ez\RelationListQuery\Handler\Traits\RelationListTrait;
+use Netgen\Layouts\Ez\RelationListQuery\Handler\Traits\SelectedContentTrait;
 use Netgen\Layouts\Parameters\ParameterBuilderInterface;
 use Netgen\Layouts\Parameters\ParameterType;
 
@@ -28,7 +29,27 @@ use Netgen\Layouts\Parameters\ParameterType;
  */
 final class RelationListQueryHandler implements QueryTypeHandlerInterface
 {
-    use RelationListTrait;
+    use SelectedContentTrait;
+
+    /**
+     * @var class-string[]
+     */
+    private static $sortClauses = [
+        'default' => SortClause\DatePublished::class,
+        'date_published' => SortClause\DatePublished::class,
+        'date_modified' => SortClause\DateModified::class,
+        'content_name' => SortClause\ContentName::class,
+        'location_priority' => SortClause\Location\Priority::class,
+        Location::SORT_FIELD_PATH => SortClause\Location\Path::class,
+        Location::SORT_FIELD_PUBLISHED => SortClause\DatePublished::class,
+        Location::SORT_FIELD_MODIFIED => SortClause\DateModified::class,
+        Location::SORT_FIELD_SECTION => SortClause\SectionIdentifier::class,
+        Location::SORT_FIELD_DEPTH => SortClause\Location\Depth::class,
+        Location::SORT_FIELD_PRIORITY => SortClause\Location\Priority::class,
+        Location::SORT_FIELD_NAME => SortClause\ContentName::class,
+        Location::SORT_FIELD_NODE_ID => SortClause\Location\Id::class,
+        Location::SORT_FIELD_CONTENTOBJECT_ID => SortClause\ContentId::class,
+    ];
 
     /**
      * @var \eZ\Publish\API\Repository\SearchService
@@ -208,6 +229,11 @@ final class RelationListQueryHandler implements QueryTypeHandlerInterface
         return $searchResult->totalCount ?? 0;
     }
 
+    public function isContextual(Query $query): bool
+    {
+        return $query->getParameter('use_current_location')->getValue() === true;
+    }
+
     /**
      * Returns content type IDs for all existing content types.
      *
@@ -297,8 +323,6 @@ final class RelationListQueryHandler implements QueryTypeHandlerInterface
         ?int $limit = null
     ): LocationQuery {
         $locationQuery = new LocationQuery();
-        $offset = $this->getOffset($offset);
-        $limit = $this->getLimit($limit);
         $sortType = $query->getParameter('sort_type')->getValue() ?? 'default';
         $sortDirection = $query->getParameter('sort_direction')->getValue() ?? LocationQuery::SORT_DESC;
 
@@ -337,7 +361,7 @@ final class RelationListQueryHandler implements QueryTypeHandlerInterface
         $locationQuery->limit = 0;
         if (!$buildCountQuery) {
             $locationQuery->offset = $offset;
-            if (is_int($limit)) {
+            if ($limit !== null) {
                 $locationQuery->limit = $limit;
             }
         }
