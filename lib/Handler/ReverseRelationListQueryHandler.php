@@ -218,6 +218,8 @@ final class ReverseRelationListQueryHandler implements QueryTypeHandlerInterface
 
     /**
      * Returns a list Content IDs whose content relates to selected content.
+     *
+     * @return int[]
      */
     private function getReverseRelatedContentIds(Query $query): array
     {
@@ -274,10 +276,16 @@ final class ReverseRelationListQueryHandler implements QueryTypeHandlerInterface
 
                 $criteria[] = $contentTypeFilter;
             }
+
             $fieldDefinitionIdentifier = $query->getParameter('field_definition_identifier')->getValue();
-            if ($fieldDefinitionIdentifier !== null) {
-                $contentId = $this->getSelectedContent($query)->id;
-                $criteria[] = new Criterion\Field($fieldDefinitionIdentifier, Criterion\Operator::CONTAINS, $contentId);
+            $selectedContent = $this->getSelectedContent($query);
+
+            if ($fieldDefinitionIdentifier !== null && $selectedContent !== null) {
+                $criteria[] = new Criterion\Field(
+                    $fieldDefinitionIdentifier,
+                    Criterion\Operator::CONTAINS,
+                    $selectedContent->id
+                );
             }
         }
 
