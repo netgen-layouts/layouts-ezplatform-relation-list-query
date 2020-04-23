@@ -13,6 +13,7 @@
         "netgen/layouts-ezplatform": "^1.0"
     },
     "require-dev": {
+        "netgen/layouts-coding-standard": "^1.0",
         "phpstan/phpstan": "^0.12",
         "phpstan/phpstan-strict-rules": "^0.12",
         "vimeo/psalm": "^3.10"
