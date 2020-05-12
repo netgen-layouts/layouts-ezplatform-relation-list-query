@@ -268,7 +268,6 @@ final class RelationListQueryHandler implements QueryTypeHandlerInterface
      *
      * @param int[]|string[] $relatedContentIds
      * @param \eZ\Publish\API\Repository\Values\Content\Location[] $locations
-     * @param string $sortDirection
      */
     private function sortLocationsByField(
         array $relatedContentIds,
