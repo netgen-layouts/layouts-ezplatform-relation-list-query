@@ -268,6 +268,7 @@ final class ReverseRelationListQueryHandler implements QueryTypeHandlerInterface
         }
 
         if ($query->getParameter('filter_by_content_type')->getValue() === true) {
+            /** @var string[]|null $contentTypes */
             $contentTypes = $query->getParameter('content_types')->getValue();
             if (is_array($contentTypes) && count($contentTypes) > 0) {
                 $contentTypeFilter = new Criterion\ContentTypeIdentifier($contentTypes);
