@@ -41,20 +41,11 @@ final class ReverseRelationListQueryHandler implements QueryTypeHandlerInterface
         'content_name' => SortClause\ContentName::class,
     ];
 
-    /**
-     * @var \eZ\Publish\API\Repository\ContentService
-     */
-    private $contentService;
+    private ContentService $contentService;
 
-    /**
-     * @var \eZ\Publish\API\Repository\SearchService
-     */
-    private $searchService;
+    private SearchService $searchService;
 
-    /**
-     * @var \eZ\Publish\Core\MVC\ConfigResolverInterface
-     */
-    private $configResolver;
+    private ConfigResolverInterface $configResolver;
 
     public function __construct(
         LocationService $locationService,
@@ -183,9 +174,7 @@ final class ReverseRelationListQueryHandler implements QueryTypeHandlerInterface
 
         /** @var \eZ\Publish\API\Repository\Values\Content\Location[] $locations */
         $locations = array_map(
-            static function (SearchHit $searchHit): ValueObject {
-                return $searchHit->valueObject;
-            },
+            static fn (SearchHit $searchHit): ValueObject => $searchHit->valueObject,
             $searchResult->searchHits
         );
 

@@ -4,21 +4,17 @@ declare(strict_types=1);
 
 namespace Netgen\Layouts\Ez\RelationListQuery\Handler\Traits;
 
+use eZ\Publish\API\Repository\LocationService;
 use eZ\Publish\API\Repository\Values\Content\Content;
 use Netgen\Layouts\API\Values\Collection\Query;
+use Netgen\Layouts\Ez\ContentProvider\ContentProviderInterface;
 use Throwable;
 
 trait SelectedContentTrait
 {
-    /**
-     * @var \eZ\Publish\API\Repository\LocationService
-     */
-    private $locationService;
+    private LocationService $locationService;
 
-    /**
-     * @var \Netgen\Layouts\Ez\ContentProvider\ContentProviderInterface
-     */
-    private $contentProvider;
+    private ContentProviderInterface $contentProvider;
 
     /**
      * Returns the selected Content item.
