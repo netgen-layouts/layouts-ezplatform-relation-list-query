@@ -267,7 +267,7 @@ final class RelationListQueryHandler implements QueryTypeHandlerInterface
      */
     private function getRelatedContentIds(Query $query): array
     {
-        $content = $this->getSelectedContent($query);
+        $content = $this->getSelectedContent($query, $this->configResolver->getParameter('languages'));
 
         if ($content === null) {
             return [];
