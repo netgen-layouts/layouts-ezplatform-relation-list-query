@@ -203,7 +203,7 @@ final class ReverseRelationListQueryHandler implements QueryTypeHandlerInterface
 
     public function getCount(Query $query): int
     {
-        $content = $this->getSelectedContent($query);
+        $content = $this->getSelectedContent($query, $this->configResolver->getParameter('languages'));
         if ($content === null) {
             return 0;
         }
@@ -257,7 +257,7 @@ final class ReverseRelationListQueryHandler implements QueryTypeHandlerInterface
      */
     private function getReverseRelatedContentIds(Query $query): array
     {
-        $content = $this->getSelectedContent($query);
+        $content = $this->getSelectedContent($query, $this->configResolver->getParameter('languages'));
 
         if ($content === null) {
             return [];
@@ -314,7 +314,7 @@ final class ReverseRelationListQueryHandler implements QueryTypeHandlerInterface
             }
 
             $fieldDefinitionIdentifier = $query->getParameter('field_definition_identifier')->getValue();
-            $selectedContent = $this->getSelectedContent($query);
+            $selectedContent = $this->getSelectedContent($query, $this->configResolver->getParameter('languages'));
 
             if ($fieldDefinitionIdentifier !== null && $selectedContent !== null) {
                 $criteria[] = new Criterion\Field(
