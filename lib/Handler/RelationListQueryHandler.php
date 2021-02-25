@@ -38,7 +38,7 @@ final class RelationListQueryHandler implements QueryTypeHandlerInterface
     /**
      * @var class-string[]
      */
-    private static $sortClauses = [
+    private static array $sortClauses = [
         'default' => SortClause\DatePublished::class,
         'date_published' => SortClause\DatePublished::class,
         'date_modified' => SortClause\DateModified::class,
