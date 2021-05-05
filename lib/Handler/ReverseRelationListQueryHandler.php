@@ -68,7 +68,7 @@ final class ReverseRelationListQueryHandler implements QueryTypeHandlerInterface
             ParameterType\Compound\BooleanType::class,
             [
                 'reverse' => true,
-            ]
+            ],
         );
 
         $builder->get('use_current_location')->add(
@@ -76,7 +76,7 @@ final class ReverseRelationListQueryHandler implements QueryTypeHandlerInterface
             EzParameterType\LocationType::class,
             [
                 'allow_invalid' => true,
-            ]
+            ],
         );
 
         $builder->add(
@@ -89,7 +89,7 @@ final class ReverseRelationListQueryHandler implements QueryTypeHandlerInterface
                     'Modified' => 'date_modified',
                     'Alphabetical' => 'content_name',
                 ],
-            ]
+            ],
         );
 
         $builder->add(
@@ -101,7 +101,7 @@ final class ReverseRelationListQueryHandler implements QueryTypeHandlerInterface
                     'Descending' => LocationQuery::SORT_DESC,
                     'Ascending' => LocationQuery::SORT_ASC,
                 ],
-            ]
+            ],
         );
 
         $builder->add(
@@ -109,7 +109,7 @@ final class ReverseRelationListQueryHandler implements QueryTypeHandlerInterface
             ParameterType\Compound\BooleanType::class,
             [
                 'groups' => [self::GROUP_ADVANCED],
-            ]
+            ],
         );
 
         $builder->get('filter_by_content_type')->add(
@@ -118,7 +118,7 @@ final class ReverseRelationListQueryHandler implements QueryTypeHandlerInterface
             [
                 'multiple' => true,
                 'groups' => [self::GROUP_ADVANCED],
-            ]
+            ],
         );
 
         $builder->get('filter_by_content_type')->add(
@@ -131,7 +131,7 @@ final class ReverseRelationListQueryHandler implements QueryTypeHandlerInterface
                     'Exclude content types' => 'exclude',
                 ],
                 'groups' => [self::GROUP_ADVANCED],
-            ]
+            ],
         );
 
         $builder->get('filter_by_content_type')->add(
@@ -140,7 +140,7 @@ final class ReverseRelationListQueryHandler implements QueryTypeHandlerInterface
             [
                 'required' => false,
                 'groups' => [self::GROUP_ADVANCED],
-            ]
+            ],
         );
 
         $builder->add(
@@ -149,7 +149,7 @@ final class ReverseRelationListQueryHandler implements QueryTypeHandlerInterface
             [
                 'default_value' => true,
                 'groups' => [self::GROUP_ADVANCED],
-            ]
+            ],
         );
     }
 
@@ -169,13 +169,13 @@ final class ReverseRelationListQueryHandler implements QueryTypeHandlerInterface
 
         $searchResult = $this->searchService->findLocations(
             $locationQuery,
-            ['languages' => $this->configResolver->getParameter('languages')]
+            ['languages' => $this->configResolver->getParameter('languages')],
         );
 
         /** @var \eZ\Publish\API\Repository\Values\Content\Location[] $locations */
         $locations = array_map(
             static fn (SearchHit $searchHit): ValueObject => $searchHit->valueObject,
-            $searchResult->searchHits
+            $searchResult->searchHits,
         );
 
         return $locations;
@@ -196,7 +196,7 @@ final class ReverseRelationListQueryHandler implements QueryTypeHandlerInterface
 
         $searchResult = $this->searchService->findLocations(
             $this->buildLocationQuery($relatedContentIds, $query, true),
-            ['languages' => $this->configResolver->getParameter('languages')]
+            ['languages' => $this->configResolver->getParameter('languages')],
         );
 
         return $searchResult->totalCount ?? 0;
@@ -252,7 +252,7 @@ final class ReverseRelationListQueryHandler implements QueryTypeHandlerInterface
 
         if ($query->getParameter('only_main_locations')->getValue() === true) {
             $criteria[] = new Criterion\Location\IsMainLocation(
-                Criterion\Location\IsMainLocation::MAIN
+                Criterion\Location\IsMainLocation::MAIN,
             );
         }
 
@@ -276,7 +276,7 @@ final class ReverseRelationListQueryHandler implements QueryTypeHandlerInterface
                 $criteria[] = new Criterion\Field(
                     $fieldDefinitionIdentifier,
                     Criterion\Operator::CONTAINS,
-                    $selectedContent->id
+                    $selectedContent->id,
                 );
             }
         }
