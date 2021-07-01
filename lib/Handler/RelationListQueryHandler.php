@@ -60,10 +60,7 @@ final class RelationListQueryHandler implements QueryTypeHandlerInterface
 
     private ConfigResolverInterface $configResolver;
 
-    /**
-     * @var \eZ\Publish\Core\Helper\TranslationHelper
-     */
-    private $translationHelper;
+    private TranslationHelper $translationHelper;
 
     public function __construct(
         LocationService $locationService,
