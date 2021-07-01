@@ -6,6 +6,7 @@ services:
             - "@netgen_layouts.ezplatform.search_service"
             - "@netgen_layouts.ezplatform.content_provider"
             - "@ezpublish.config.resolver"
+            - "@ezpublish.translation_helper"
         tags:
             - { name: netgen_layouts.query_type_handler, type: ezcontent_relation_list }
 

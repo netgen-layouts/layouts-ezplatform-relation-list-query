@@ -13,6 +13,7 @@ use eZ\Publish\API\Repository\Values\Content\Query\SortClause;
 use eZ\Publish\API\Repository\Values\Content\Search\SearchHit;
 use eZ\Publish\API\Repository\Values\ValueObject;
 use eZ\Publish\Core\FieldType\RelationList\Value as RelationListValue;
+use eZ\Publish\Core\Helper\TranslationHelper;
 use eZ\Publish\Core\MVC\ConfigResolverInterface;
 use Netgen\Layouts\API\Values\Collection\Query;
 use Netgen\Layouts\Collection\QueryType\QueryTypeHandlerInterface;
@@ -70,16 +71,23 @@ final class RelationListQueryHandler implements QueryTypeHandlerInterface
      */
     private $configResolver;
 
+    /**
+     * @var \eZ\Publish\Core\Helper\TranslationHelper
+     */
+    private $translationHelper;
+
     public function __construct(
         LocationService $locationService,
         SearchService $searchService,
         ContentProviderInterface $contentProvider,
-        ConfigResolverInterface $configResolver
+        ConfigResolverInterface $configResolver,
+        TranslationHelper $translationHelper
     ) {
         $this->locationService = $locationService;
         $this->searchService = $searchService;
         $this->contentProvider = $contentProvider;
         $this->configResolver = $configResolver;
+        $this->translationHelper = $translationHelper;
     }
 
     public function buildParameters(ParameterBuilderInterface $builder): void
@@ -274,13 +282,13 @@ final class RelationListQueryHandler implements QueryTypeHandlerInterface
         }
 
         $fieldDefinitionIdentifier = $query->getParameter('field_definition_identifier')->getValue();
-        $fieldValue = $content->getFieldValue($fieldDefinitionIdentifier);
+        $field = $this->translationHelper->getTranslatedField($content, $fieldDefinitionIdentifier);
 
-        if ($fieldValue === null || !$fieldValue instanceof RelationListValue) {
+        if ($field === null || !$field->value instanceof RelationListValue) {
             return [];
         }
 
-        return $fieldValue->destinationContentIds;
+        return $field->value->destinationContentIds;
     }
 
     /**
