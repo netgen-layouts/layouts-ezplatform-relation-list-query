@@ -20,6 +20,7 @@ use Netgen\Layouts\Ez\Parameters\ParameterType as EzParameterType;
 use Netgen\Layouts\Ez\RelationListQuery\Handler\Traits\SelectedContentTrait;
 use Netgen\Layouts\Parameters\ParameterBuilderInterface;
 use Netgen\Layouts\Parameters\ParameterType;
+
 use function array_map;
 use function count;
 use function is_array;
